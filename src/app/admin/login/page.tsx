@@ -56,7 +56,7 @@ export default function AdminLoginPage() {
             <Lock className="h-6 w-6"/>
           </div>
           <CardTitle className="font-headline text-2xl">Admin Login</CardTitle>
-          <CardDescription>Enter credentials to access the dashboard.</CardDescription>
+        
         </CardHeader>
         <CardContent>
           <Form {...form}>
