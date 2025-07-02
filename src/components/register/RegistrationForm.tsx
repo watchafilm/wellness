@@ -4,23 +4,23 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
 
 import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+const ageRanges = ["20-29 ปี", "30-39 ปี", "40-49 ปี", "50-59 ปี", "60-69 ปี", "70+ ปี"] as const;
 
 const formSchema = z.object({
   firstName: z.string().min(2, { message: "กรุณากรอกชื่อจริงอย่างน้อย 2 ตัวอักษร" }),
@@ -28,37 +28,17 @@ const formSchema = z.object({
   gender: z.enum(["male", "female"], {
     required_error: "กรุณาเลือกเพศ",
   }),
-  dob: z.date({
-    required_error: "กรุณาเลือกวันเดือนปีเกิดให้ครบถ้วน",
+  ageRange: z.enum(ageRanges, {
+    required_error: "กรุณาเลือกช่วงอายุ",
   }),
   phone: z.string().regex(/^(0\d{9})$/, { message: "กรุณากรอกเบอร์โทรศัพท์ 10 หลักให้ถูกต้อง" }),
   email: z.string().email({ message: "กรุณากรอกอีเมลให้ถูกต้อง" }),
   lineId: z.string().optional(),
 });
 
-const currentBEYear = new Date().getFullYear() + 543;
-const years = Array.from({ length: 100 }, (_, i) => (currentBEYear - i).toString());
-
-const months = [
-    { value: "1", label: "มกราคม" },
-    { value: "2", label: "กุมภาพันธ์" },
-    { value: "3", label: "มีนาคม" },
-    { value: "4", label: "เมษายน" },
-    { value: "5", label: "พฤษภาคม" },
-    { value: "6", label: "มิถุนายน" },
-    { value: "7", label: "กรกฎาคม" },
-    { value: "8", label: "สิงหาคม" },
-    { value: "9", label: "กันยายน" },
-    { value: "10", label: "ตุลาคม" },
-    { value: "11", label: "พฤศจิกายน" },
-    { value: "12", label: "ธันวาคม" },
-];
-
-const days = Array.from({ length: 31 }, (_, i) => (i + 1).toString());
 
 export function RegistrationForm() {
   const { toast } = useToast();
-  const [selectedDob, setSelectedDob] = useState({ day: "", month: "", year: "" });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -71,25 +51,6 @@ export function RegistrationForm() {
     },
   });
 
-  useEffect(() => {
-    const { day, month, year } = selectedDob;
-    if (day && month && year) {
-      const yearAD = parseInt(year, 10) - 543;
-      const monthIndex = parseInt(month, 10) - 1;
-      const dayOfMonth = parseInt(day, 10);
-      
-      const date = new Date(yearAD, monthIndex, dayOfMonth);
-
-      if (date.getFullYear() === yearAD && date.getMonth() === monthIndex && date.getDate() === dayOfMonth) {
-        form.setValue("dob", date, { shouldValidate: true });
-      } else {
-        form.setValue("dob", undefined as any, { shouldValidate: true });
-      }
-    } else {
-        form.clearErrors("dob");
-    }
-  }, [selectedDob, form]);
-
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
     
@@ -99,15 +60,14 @@ export function RegistrationForm() {
     });
     
     form.reset();
-    setSelectedDob({ day: "", month: "", year: "" });
   }
 
   return (
     <Card className="w-full shadow-2xl">
       <CardHeader className="items-center text-center">
-        <Image src="https://www.genfosis.com/images/Genfosis_Logo_PNG.webp" alt="Genfosis Logo" width={150} height={159} priority className="mb-4" />
+        <Image src="https://www.genfosis.com/images/Genfosis_Logo_PNG.webp" alt="Genfosis Logo" width={100} height={159} priority className="mb-4" />
         <CardTitle className="font-headline text-3xl text-primary">ลงทะเบียนเข้าร่วมกิจกรรม</CardTitle>
-        <CardDescription>กรอกข้อมูลด้านล่างเพื่อสำรองที่นั่งของคุณ</CardDescription>
+      
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -120,7 +80,7 @@ export function RegistrationForm() {
                   <FormItem>
                     <FormLabel>ชื่อจริง</FormLabel>
                     <FormControl>
-                      <Input placeholder="สมชาย" {...field} />
+                      <Input placeholder="โปรดกรอกชื่อของคุณ" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -133,7 +93,7 @@ export function RegistrationForm() {
                   <FormItem>
                     <FormLabel>นามสกุล</FormLabel>
                     <FormControl>
-                      <Input placeholder="รักดี" {...field} />
+                      <Input placeholder="โปรดกรอกนามสกุลของคุณ" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -174,37 +134,22 @@ export function RegistrationForm() {
 
             <FormField
               control={form.control}
-              name="dob"
-              render={() => (
+              name="ageRange"
+              render={({ field }) => (
                 <FormItem>
-                  <FormLabel>วัน/เดือน/ปีเกิด</FormLabel>
-                  <div className="grid grid-cols-3 gap-2 sm:gap-4">
-                    <Select onValueChange={(value) => setSelectedDob(prev => ({ ...prev, day: value }))} value={selectedDob.day}>
-                      <FormControl>
-                        <SelectTrigger><SelectValue placeholder="วัน" /></SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {days.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                    <Select onValueChange={(value) => setSelectedDob(prev => ({ ...prev, month: value }))} value={selectedDob.month}>
-                      <FormControl>
-                        <SelectTrigger><SelectValue placeholder="เดือน" /></SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {months.map(m => <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                    <Select onValueChange={(value) => setSelectedDob(prev => ({ ...prev, year: value }))} value={selectedDob.year}>
-                      <FormControl>
-                        <SelectTrigger><SelectValue placeholder="ปี (พ.ศ.)" /></SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                         {years.map(y => <SelectItem key={y} value={y}>{y}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                   <FormDescription>อายุของคุณจะถูกคำนวณจากข้อมูลนี้</FormDescription>
+                  <FormLabel>ช่วงอายุ</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="กรุณาเลือกช่วงอายุของคุณ" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {ageRanges.map(range => (
+                        <SelectItem key={range} value={range}>{range}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -232,7 +177,7 @@ export function RegistrationForm() {
                   <FormControl>
                     <Input placeholder="you@example.com" {...field} />
                   </FormControl>
-                   <FormDescription>เราจะส่งผลการประเมินของคุณไปที่นี่</FormDescription>
+            
                   <FormMessage />
                 </FormItem>
               )}
