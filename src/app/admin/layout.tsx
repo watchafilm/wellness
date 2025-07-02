@@ -69,7 +69,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         <div className="flex h-full flex-col">
             <header className="p-4 border-b">
                  <Link href="/admin" onClick={() => setIsSheetOpen(false)} className="flex items-center justify-center">
-                    <Image src="https://www.genfosis.com/images/Genfosis_Logo_PNG.webp" alt="Genfosis Logo" width={120} height={40} className="h-8 w-auto" />
+                    <Image src="https://www.genfosis.com/images/Genfosis_Logo_PNG.webp" alt="Genfosis Logo" width={200} height={40} className="h-8 w-auto" />
                 </Link>
             </header>
             <nav className="flex flex-col gap-2 p-4 text-base font-medium">

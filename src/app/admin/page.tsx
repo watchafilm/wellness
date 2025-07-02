@@ -21,7 +21,7 @@ export default function AdminDashboardPage() {
       <CardHeader>
         <CardTitle className="font-headline text-4xl text-primary">Scoreboard</CardTitle>
         <CardDescription className="text-lg text-muted-foreground">
-          Live leaderboard for the Elite Athlete Fitness Challenge.
+        ตารางคะแนนรวมของผู้เข้าร่วมกิจกรรมทั้งหมด
         </CardDescription>
       </CardHeader>
       <CardContent className="overflow-x-auto">

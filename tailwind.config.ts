@@ -91,9 +91,11 @@ export default {
         'rank-one-glow': {
           '0%, 100%': {
             boxShadow: '0 0 5px hsl(var(--accent) / 0.4), 0 0 10px hsl(var(--accent) / 0.3)',
+            transform: 'scale(1)',
           },
           '50%': {
             boxShadow: '0 0 15px hsl(var(--accent) / 0.6), 0 0 30px hsl(var(--accent) / 0.5)',
+            transform: 'scale(1.02)',
           },
         },
       },
