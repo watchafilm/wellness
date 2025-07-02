@@ -9,9 +9,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { stations } from '@/lib/stations';
-import { LayoutDashboard, LogOut, Menu, BarChart2, Users } from 'lucide-react';
+import { LayoutDashboard, LogOut, Menu, BarChart2, Users, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Loader2 } from 'lucide-react';
 
 
 const navLinks = [
@@ -20,8 +19,15 @@ const navLinks = [
 ];
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
-    const router = useRouter();
     const pathname = usePathname();
+    const router = useRouter();
+    
+    // If the user is on the login page, we don't need to wrap it in the admin layout
+    // or perform authentication checks. Just render the login page component.
+    if (pathname === '/admin/login') {
+        return <>{children}</>;
+    }
+
     const { toast } = useToast();
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
     const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -36,6 +42,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 router.replace('/admin/login');
             }
         } catch (error) {
+            // Handle cases where localStorage is not available
             setIsAuthenticated(false);
             router.replace('/admin/login');
         }
@@ -52,17 +59,14 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         }
     };
 
-    if (isAuthenticated === null) {
+    // If authentication is not yet determined or if the user is unauthenticated (and being redirected),
+    // show a loader. This prevents showing a blank page.
+    if (!isAuthenticated) {
         return (
             <div className="flex min-h-screen items-center justify-center bg-background">
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
             </div>
         );
-    }
-
-    if (isAuthenticated === false) {
-        // Render nothing, the user is being redirected
-        return null;
     }
     
     const NavContent = () => (
