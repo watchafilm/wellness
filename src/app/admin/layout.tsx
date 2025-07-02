@@ -4,6 +4,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useToast } from "@/hooks/use-toast";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
@@ -22,8 +23,6 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     const pathname = usePathname();
     const router = useRouter();
     
-    // If the user is on the login page, we don't need to wrap it in the admin layout
-    // or perform authentication checks. Just render the login page component.
     if (pathname === '/admin/login') {
         return <>{children}</>;
     }
@@ -42,7 +41,6 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 router.replace('/admin/login');
             }
         } catch (error) {
-            // Handle cases where localStorage is not available
             setIsAuthenticated(false);
             router.replace('/admin/login');
         }
@@ -59,9 +57,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         }
     };
 
-    // If authentication is not yet determined or if the user is unauthenticated (and being redirected),
-    // show a loader. This prevents showing a blank page.
-    if (!isAuthenticated) {
+    if (isAuthenticated === null || isAuthenticated === false) {
         return (
             <div className="flex min-h-screen items-center justify-center bg-background">
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -71,10 +67,12 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     
     const NavContent = () => (
         <div className="flex h-full flex-col">
-            <nav className="flex flex-col gap-2 p-4 text-base font-medium">
-                <Link href="/admin" onClick={() => setIsSheetOpen(false)} className="flex items-center gap-2 text-xl font-headline font-bold mb-4 text-primary px-2">
-                   Elite Athlete Tracker
+            <header className="p-4 border-b">
+                 <Link href="/admin" onClick={() => setIsSheetOpen(false)} className="flex items-center justify-center">
+                    <Image src="https://www.genfosis.com/images/Genfosis_Logo_PNG.webp" alt="Genfosis Logo" width={120} height={40} className="h-8 w-auto" />
                 </Link>
+            </header>
+            <nav className="flex flex-col gap-2 p-4 text-base font-medium">
                 {navLinks.map(link => (
                     <Link
                         key={link.href}
@@ -127,7 +125,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
     return (
         <div className="flex min-h-screen w-full flex-col bg-secondary/50">
-            <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-card px-4 sm:px-6">
+            <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-card px-4 sm:px-6">
                 <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                     <SheetTrigger asChild>
                         <Button
@@ -143,6 +141,13 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                         <NavContent />
                     </SheetContent>
                 </Sheet>
+                 <div className="flex flex-1 items-center justify-center gap-x-4">
+                    <Image src="https://www.genfosis.com/images/Genfosis_Logo_PNG.webp" alt="Genfosis Logo" width={120} height={40} className="h-10 w-auto" />
+                    <div className="h-8 w-px bg-border hidden sm:block" />
+                    <h1 className="text-md font-headline text-primary hidden sm:block">
+                        Biohacking 1: Measurements of Biological Aging
+                    </h1>
+                </div>
             </header>
             <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto">
                 {children}
