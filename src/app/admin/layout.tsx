@@ -126,29 +126,27 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     );
 
     return (
-        <div className="grid min-h-screen w-full md:grid-cols-[240px_1fr] lg:grid-cols-[280px_1fr] bg-secondary/50">
-            <div className="hidden border-r bg-card md:block">
-                <NavContent />
-            </div>
-            <div className="flex flex-col">
-                <header className="flex h-14 items-center justify-between border-b bg-card px-4 lg:h-[60px] lg:px-6 md:hidden">
-                    <Link href="/admin" className="text-lg font-headline font-bold text-primary">Scoreboard</Link>
-                    <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-                        <SheetTrigger asChild>
-                            <Button variant="outline" size="icon" className="shrink-0">
-                                <Menu className="h-5 w-5" />
-                                <span className="sr-only">Toggle navigation menu</span>
-                            </Button>
-                        </SheetTrigger>
-                        <SheetContent side="right" className="flex flex-col p-0 bg-card">
-                             <NavContent />
-                        </SheetContent>
-                    </Sheet>
-                </header>
-                <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto">
-                    {children}
-                </main>
-            </div>
+        <div className="flex min-h-screen w-full flex-col bg-secondary/50">
+            <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-card px-4 sm:px-6">
+                <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+                    <SheetTrigger asChild>
+                        <Button
+                        variant="outline"
+                        size="icon"
+                        className="shrink-0"
+                        >
+                        <Menu className="h-5 w-5" />
+                        <span className="sr-only">Toggle navigation menu</span>
+                        </Button>
+                    </SheetTrigger>
+                    <SheetContent side="left" className="flex flex-col p-0 bg-card w-[240px] sm:w-[280px]">
+                        <NavContent />
+                    </SheetContent>
+                </Sheet>
+            </header>
+            <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto">
+                {children}
+            </main>
         </div>
     );
 }
