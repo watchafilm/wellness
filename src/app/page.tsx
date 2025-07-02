@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Medal, ShieldCheck } from 'lucide-react';
 
@@ -20,15 +21,15 @@ export default function Home() {
             </div>
 
             <div className="flex items-center justify-center space-x-4 mb-4">
-                <h1 className="font-headline text-6xl md:text-8xl font-bold text-primary tracking-tighter">Genfosis</h1>
+                <Image src="/logo.png" alt="Genfosis Logo" width={400} height={213} priority />
             </div>
             
-            <div className="w-60 h-px bg-gradient-to-r from-transparent via-accent to-transparent" />
+            <div className="w-60 h-px bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
             
-            <h1 className="mt-6 text-4xl md:text-4xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-foreground to-muted-foreground">
+            <h1 className="mt-6 text-4xl md:text-4xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-gray-900 to-gray-700">
               Biohacking 1: Measurements of Biological Aging
             </h1>
-            <p className="mt-4 max-w-2xl text-xl text-muted-foreground leading-relaxed">
+            <p className="mt-4 max-w-2xl text-2xl text-gray-600 leading-relaxed">
               ร่วมทดสอบอายุชีวภาพของร่างกายคุณกับกิจกรรมสุดท้าทายจาก Genfosis
             </p>
             
