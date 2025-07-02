@@ -16,6 +16,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'www.genfosis.com',
+        port: '', // ถ้าไม่มี port เฉพาะเจาะจงก็เว้นว่างไว้
+        pathname: '/**', // หรือระบุ path ที่แม่นยำกว่า เช่น '/images/**' ถ้าต้องการ
+      },
     ],
   },
 };

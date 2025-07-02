@@ -13,36 +13,29 @@ export default function Home() {
             }}
         />
         <main className="relative z-10 flex flex-col items-center justify-center">
-            <div className="mb-8">
-                <span className="inline-flex items-center rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
-                    <Medal className="mr-2 h-4 w-4 text-accent" />
-                    Fitness Challenge 2024
-                </span>
-            </div>
+            
 
             <div className="flex items-center justify-center space-x-4 mb-4">
-                <Image src="/logo.png" alt="Genfosis Logo" width={400} height={213} priority />
+                <Image src="https://www.genfosis.com/images/Genfosis_Logo_PNG.webp" alt="Genfosis Logo" width={200} height={213} priority />
             </div>
             
             <div className="w-60 h-px bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
             
-            <h1 className="mt-6 text-4xl md:text-4xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-gray-900 to-gray-700">
+            <h1 className="mt-14 text-4xl md:text-4xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-gray-900 to-gray-700">
               Biohacking 1: Measurements of Biological Aging
             </h1>
-            <p className="mt-4 max-w-2xl text-2xl text-gray-600 leading-relaxed">
+            <p className="mt-8 max-w-2xl text-xl text-gray-600 leading-relaxed">
               ร่วมทดสอบอายุชีวภาพของร่างกายคุณกับกิจกรรมสุดท้าทายจาก Genfosis
             </p>
             
-            <div className="mt-10 flex flex-col sm:flex-row gap-4">
+            <div className="mt-16 flex flex-col sm:flex-row gap-4">
                 <Button asChild size="lg" className="bg-accent text-accent-foreground shadow-lg hover:bg-accent/90 transition-transform hover:scale-105">
                     <Link href="/register">
                         <ShieldCheck className="mr-2 h-5 w-5" />
-                        Register for the Challenge
+                        ลงทะเบียนเข้าร่วมกิจกรรม
                     </Link>
                 </Button>
-                <Button asChild size="lg" variant="ghost" className="transition-transform hover:scale-105">
-                    <Link href="/admin/login">Admin Login &rarr;</Link>
-                </Button>
+               
             </div>
         </main>
 

@@ -10,7 +10,7 @@ export default function RegisterPage() {
         <Button asChild variant="ghost">
           <Link href="/">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Home
+            กลับหน้าหลัก
           </Link>
         </Button>
       </div>
