@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { useToast } from "@/hooks/use-toast";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { stations } from '@/lib/stations';
 import { LayoutDashboard, LogOut, Menu, BarChart2, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -25,6 +25,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     const { toast } = useToast();
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
     const [isClient, setIsClient] = useState(false);
+    const [isSheetOpen, setIsSheetOpen] = useState(false);
 
     useEffect(() => {
         setIsClient(true);
@@ -62,22 +63,22 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     const NavContent = () => (
         <div className="flex h-full flex-col">
             <nav className="flex flex-col gap-2 p-4 text-base font-medium">
-                <Link href="/admin" className="flex items-center gap-2 text-xl font-headline font-bold mb-4 text-primary px-2">
+                <Link href="/admin" onClick={() => setIsSheetOpen(false)} className="flex items-center gap-2 text-xl font-headline font-bold mb-4 text-primary px-2">
                    Elite Athlete Tracker
                 </Link>
                 {navLinks.map(link => (
-                    <SheetClose asChild key={link.href}>
-                        <Link
-                            href={link.href}
-                            className={cn(
-                                "flex items-center gap-3 rounded-lg px-3 py-3 text-muted-foreground transition-all hover:text-primary",
-                                pathname === link.href && "bg-primary/10 text-primary font-semibold"
-                            )}
-                        >
-                            <link.icon className="h-5 w-5" />
-                            {link.label}
-                        </Link>
-                    </SheetClose>
+                    <Link
+                        key={link.href}
+                        href={link.href}
+                        onClick={() => setIsSheetOpen(false)}
+                        className={cn(
+                            "flex items-center gap-3 rounded-lg px-3 py-3 text-muted-foreground transition-all hover:text-primary",
+                            pathname === link.href && "bg-primary/10 text-primary font-semibold"
+                        )}
+                    >
+                        <link.icon className="h-5 w-5" />
+                        {link.label}
+                    </Link>
                 ))}
                 <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value="stations" className="border-none">
@@ -88,18 +89,18 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                         <AccordionContent className="pl-8">
                             <div className="flex flex-col gap-1 mt-1">
                             {Object.entries(stations).map(([key, station]) => (
-                                <SheetClose asChild key={key}>
-                                    <Link
-                                        href={`/admin/station/${key}`}
-                                        className={cn(
-                                            "flex items-center gap-3 rounded-md px-3 py-2 text-muted-foreground transition-all hover:text-primary text-sm",
-                                            pathname === `/admin/station/${key}` && "bg-primary/10 text-primary font-semibold"
-                                        )}
-                                    >
-                                        <station.icon className="h-4 w-4" />
-                                        {station.name}
-                                    </Link>
-                                </SheetClose>
+                                <Link
+                                    key={key}
+                                    href={`/admin/station/${key}`}
+                                    onClick={() => setIsSheetOpen(false)}
+                                    className={cn(
+                                        "flex items-center gap-3 rounded-md px-3 py-2 text-muted-foreground transition-all hover:text-primary text-sm",
+                                        pathname === `/admin/station/${key}` && "bg-primary/10 text-primary font-semibold"
+                                    )}
+                                >
+                                    <station.icon className="h-4 w-4" />
+                                    {station.name}
+                                </Link>
                             ))}
                             </div>
                         </AccordionContent>
@@ -123,7 +124,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             <div className="flex flex-col">
                 <header className="flex h-14 items-center justify-between border-b bg-card px-4 lg:h-[60px] lg:px-6 md:hidden">
                     <Link href="/admin" className="text-lg font-headline font-bold text-primary">Scoreboard</Link>
-                    <Sheet>
+                    <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                         <SheetTrigger asChild>
                             <Button variant="outline" size="icon" className="shrink-0">
                                 <Menu className="h-5 w-5" />
