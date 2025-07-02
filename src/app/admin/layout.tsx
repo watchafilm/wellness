@@ -69,7 +69,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         <div className="flex h-full flex-col">
             <header className="p-4 border-b">
                  <Link href="/admin" onClick={() => setIsSheetOpen(false)} className="flex items-center justify-center">
-                    <Image src="https://www.genfosis.com/images/Genfosis_Logo_PNG.webp" alt="Genfosis Logo" width={200} height={40} className="h-8 w-auto" />
+                    <Image src="https://www.genfosis.com/images/Genfosis_Logo_PNG.webp" alt="Genfosis Logo" width={500} height={100} className="h-20 w-auto" />
                 </Link>
             </header>
             <nav className="flex flex-col gap-2 p-4 text-base font-medium">
@@ -125,7 +125,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
     return (
         <div className="flex min-h-screen w-full flex-col bg-secondary/50">
-            <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-card px-4 sm:px-6">
+            <header className="sticky top-0 z-30 flex h-30 items-center gap-4 border-b bg-card px-4 sm:px-6">
                 <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                     <SheetTrigger asChild>
                         <Button
@@ -141,10 +141,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                         <NavContent />
                     </SheetContent>
                 </Sheet>
-                 <div className="flex flex-1 items-center justify-center gap-x-4">
-                    <Image src="https://www.genfosis.com/images/Genfosis_Logo_PNG.webp" alt="Genfosis Logo" width={120} height={40} className="h-10 w-auto" />
-                    <div className="h-8 w-px bg-border hidden sm:block" />
-                    <h1 className="text-md font-headline text-primary hidden sm:block">
+                 <div className="flex flex-1 items-center justify-center gap-x-10">
+                    <Image src="https://www.genfosis.com/images/Genfosis_Logo_PNG.webp" alt="Genfosis Logo" width={200} height={400} className="h-20 w-auto" />
+                    <div className="h-12 w-px bg-border hidden sm:block" />
+                    <h1 className="text-lg text-primary hidden font-bold sm:block">
                         Biohacking 1: Measurements of Biological Aging
                     </h1>
                 </div>

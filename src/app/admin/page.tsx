@@ -18,20 +18,20 @@ export default function AdminDashboardPage() {
 
   return (
     <Card className="shadow-2xl border-none bg-card/90 backdrop-blur-sm">
-      <CardHeader>
-        <CardTitle className="font-headline text-4xl text-primary">Scoreboard</CardTitle>
-        <CardDescription className="text-lg text-muted-foreground">
+      <CardHeader className="p-4">
+        <CardTitle className="font-headline text-3xl text-primary">Scoreboard</CardTitle>
+        <CardDescription className="text-base text-muted-foreground">
         ตารางคะแนนรวมของผู้เข้าร่วมกิจกรรมทั้งหมด
         </CardDescription>
       </CardHeader>
-      <CardContent className="overflow-x-auto">
+      <CardContent className="overflow-x-auto p-4 pt-0">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[80px] text-center font-bold">อันดับ</TableHead>
-              <TableHead>ชื่อ</TableHead>
-              {Object.values(stations).map(s => <TableHead key={s.name} className="text-center">{s.name}</TableHead>)}
-              <TableHead className="text-center font-bold">คะแนนรวม</TableHead>
+              <TableHead className="w-[80px] text-center font-bold px-2 py-3">อันดับ</TableHead>
+              <TableHead className="px-3 py-3">ชื่อ</TableHead>
+              {Object.values(stations).map(s => <TableHead key={s.name} className="text-center px-2 py-3 text-sm">{s.name}</TableHead>)}
+              <TableHead className="text-center font-bold px-3 py-3">คะแนนรวม</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -45,8 +45,8 @@ export default function AdminDashboardPage() {
 
               return (
                 <TableRow key={p.id} className={cn("transition-colors", rankClasses)}>
-                  <TableCell className="text-center font-extrabold text-2xl text-primary">{rank}</TableCell>
-                  <TableCell className="font-medium">
+                  <TableCell className="text-center font-extrabold text-2xl text-primary px-2 py-2">{rank}</TableCell>
+                  <TableCell className="font-medium px-3 py-2">
                     {p.name}
                     <br/>
                     <span className="text-xs text-muted-foreground font-mono">{p.id}</span>
@@ -55,13 +55,13 @@ export default function AdminDashboardPage() {
                      const score = p.scores[key as keyof typeof p.scores];
                      const level = getLevel(score, config.benchmarks.good, config.benchmarks.excellent, config.benchmarks.lowerIsBetter);
                      return (
-                       <TableCell key={key} className="text-center">
+                       <TableCell key={key} className="text-center px-2 py-2">
                           <div className="font-semibold text-base">{score}</div>
                           <Badge variant={level.variant} className="mt-1 text-xs font-normal">{level.text}</Badge>
                        </TableCell>
                      )
                   })}
-                  <TableCell className="text-center font-bold text-lg">{p.totalScore.toFixed(2)}</TableCell>
+                  <TableCell className="text-center font-bold text-lg px-3 py-2">{p.totalScore.toFixed(2)}</TableCell>
                 </TableRow>
               )
             })}
