@@ -20,16 +20,16 @@ export default function Home() {
             </div>
 
             <div className="flex items-center justify-center space-x-4 mb-4">
-                <h1 className="font-headline text-6xl md:text-8xl font-bold text-primary tracking-tighter">IWH</h1>
-                <span className="text-4xl md:text-6xl font-extralight text-muted-foreground">&times;</span>
                 <h1 className="font-headline text-6xl md:text-8xl font-bold text-primary tracking-tighter">Genfosis</h1>
             </div>
             
-            <p className="font-headline mt-2 max-w-3xl text-xl md:text-2xl text-foreground/80">
-                Push Your Limits. Define Your Strength.
-            </p>
-            <p className="mt-4 max-w-2xl text-muted-foreground leading-relaxed">
-                Welcome to the premier fitness showcase. A challenge designed to test your physical prowess across multiple disciplines. Ready to see how you measure up?
+            <div className="w-60 h-px bg-gradient-to-r from-transparent via-accent to-transparent" />
+            
+            <h1 className="mt-6 text-4xl md:text-4xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-foreground to-muted-foreground">
+              Biohacking 1: Measurements of Biological Aging
+            </h1>
+            <p className="mt-4 max-w-2xl text-xl text-muted-foreground leading-relaxed">
+              ร่วมทดสอบอายุชีวภาพของร่างกายคุณกับกิจกรรมสุดท้าทายจาก Genfosis
             </p>
             
             <div className="mt-10 flex flex-col sm:flex-row gap-4">
@@ -46,7 +46,7 @@ export default function Home() {
         </main>
 
         <footer className="relative z-10 mt-24 text-center text-sm text-muted-foreground">
-            <p>&copy; {new Date().getFullYear()} IWH x Genfosis. All Rights Reserved.</p>
+            <p>&copy; {new Date().getFullYear()} Genfosis Co., Ltd. All Rights Reserved.</p>
         </footer>
     </div>
   );

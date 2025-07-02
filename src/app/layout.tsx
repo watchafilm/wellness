@@ -3,8 +3,8 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'Elite Athlete Tracker',
-  description: 'IWH x Genfosis Fitness Challenge',
+  title: 'Genfosis Biohacking Challenge',
+  description: 'Biohacking 1: Measurements of Biological Aging',
 };
 
 export default function RootLayout({
