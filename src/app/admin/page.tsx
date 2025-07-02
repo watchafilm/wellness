@@ -18,14 +18,14 @@ export default function AdminDashboardPage() {
 
   return (
     <Card className="shadow-2xl border-none bg-card/90 backdrop-blur-sm">
-      <CardHeader className="p-4">
+      <CardHeader className="p-6">
         <CardTitle className="font-headline text-3xl text-primary">Scoreboard</CardTitle>
         <CardDescription className="text-base text-muted-foreground">
         ตารางคะแนนรวมของผู้เข้าร่วมกิจกรรมทั้งหมด
         </CardDescription>
       </CardHeader>
-      <CardContent className="overflow-x-auto p-4 pt-0">
-        <Table>
+      <CardContent className="overflow-x-auto p-6 pt-0">
+        <Table className="w-[98%] mx-auto">
           <TableHeader>
             <TableRow>
               <TableHead className="w-[80px] text-center font-bold px-2 py-3">อันดับ</TableHead>
