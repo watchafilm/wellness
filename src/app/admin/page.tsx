@@ -29,9 +29,9 @@ export default function AdminDashboardPage() {
           <TableHeader>
             <TableRow>
               <TableHead className="w-[80px] text-center font-bold px-2 py-3">อันดับ</TableHead>
-              <TableHead className="px-3 py-3">ชื่อ</TableHead>
-              {Object.values(stations).map(s => <TableHead key={s.name} className="text-center px-2 py-3 text-sm">{s.name}</TableHead>)}
-              <TableHead className="text-center font-bold px-3 py-3">คะแนนรวม</TableHead>
+              <TableHead className="px-2 py-3">ชื่อ</TableHead>
+              {Object.values(stations).map(s => <TableHead key={s.name} className="text-center px-1 py-3 text-xs">{s.name}</TableHead>)}
+              <TableHead className="text-center font-bold px-2 py-3">คะแนนรวม</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -45,8 +45,8 @@ export default function AdminDashboardPage() {
 
               return (
                 <TableRow key={p.id} className={cn("transition-colors", rankClasses)}>
-                  <TableCell className="text-center font-extrabold text-2xl text-primary px-2 py-2">{rank}</TableCell>
-                  <TableCell className="font-medium px-3 py-2">
+                  <TableCell className="text-center font-extrabold text-2xl text-primary px-2 py-4">{rank}</TableCell>
+                  <TableCell className="font-medium px-2 py-4">
                     {p.name}
                     <br/>
                     <span className="text-xs text-muted-foreground font-mono">{p.id}</span>
@@ -55,13 +55,13 @@ export default function AdminDashboardPage() {
                      const score = p.scores[key as keyof typeof p.scores];
                      const level = getLevel(score, config.benchmarks.good, config.benchmarks.excellent, config.benchmarks.lowerIsBetter);
                      return (
-                       <TableCell key={key} className="text-center px-2 py-2">
+                       <TableCell key={key} className="text-center px-1 py-4">
                           <div className="font-semibold text-base">{score}</div>
                           <Badge variant={level.variant} className="mt-1 text-xs font-normal">{level.text}</Badge>
                        </TableCell>
                      )
                   })}
-                  <TableCell className="text-center font-bold text-lg px-3 py-2">{p.totalScore.toFixed(2)}</TableCell>
+                  <TableCell className="text-center font-bold text-lg px-2 py-4">{p.totalScore.toFixed(2)}</TableCell>
                 </TableRow>
               )
             })}
