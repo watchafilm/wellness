@@ -24,19 +24,19 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     const pathname = usePathname();
     const { toast } = useToast();
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-    const [isClient, setIsClient] = useState(false);
     const [isSheetOpen, setIsSheetOpen] = useState(false);
 
     useEffect(() => {
-        setIsClient(true);
         try {
             const authStatus = localStorage.getItem('isAdminAuthenticated');
             if (authStatus === 'true') {
                 setIsAuthenticated(true);
             } else {
+                setIsAuthenticated(false);
                 router.replace('/admin/login');
             }
         } catch (error) {
+            setIsAuthenticated(false);
             router.replace('/admin/login');
         }
     }, [router]);
@@ -52,12 +52,17 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         }
     };
 
-    if (!isClient || isAuthenticated === null) {
+    if (isAuthenticated === null) {
         return (
             <div className="flex min-h-screen items-center justify-center bg-background">
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
             </div>
         );
+    }
+
+    if (isAuthenticated === false) {
+        // Render nothing, the user is being redirected
+        return null;
     }
     
     const NavContent = () => (
