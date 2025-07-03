@@ -7,31 +7,63 @@ export const pointLevels: { [key: number]: string } = {
     1: 'Poor',
 };
 
-// Data for display in the UI table (text format)
+// Data for display in the UI table (text format).
+// The range from the source table (e.g., 19.3-34.8) is split into 3 levels (2, 3, 4).
+// Level 1 is below the min, Level 5 is above the max.
 export const oneLegBenchmarkTextData = {
     male: {
-        '20-39': { '5': '>= 34.8', '4': '27.1 - 34.7', '3': '19.3 - 27.0', '2': '5.0 - 19.2', '1': '< 5.0' },
-        '40-59': { '5': '>= 40.0', '4': '27.0 - 39.9', '3': '11.5 - 26.9', '2': '4.0 - 11.4', '1': '< 4.0' },
-        '60-80': { '5': '>= 20.0', '4': '13.5 - 19.9', '3': '6.4 - 13.4', '2': '3.0 - 6.3', '1': '< 3.0' },
+        '20-39': { '5': '> 34.8', '4': '29.7 - 34.8', '3': '24.5 - 29.6', '2': '19.3 - 24.4', '1': '< 19.3' },
+        '40-59': { '5': '> 26.9', '4': '21.9 - 26.9', '3': '16.7 - 21.8', '2': '11.5 - 16.6', '1': '< 11.5' },
+        '60-80': { '5': '> 13.4', '4': '11.2 - 13.4', '3': '8.8 - 11.1',  '2': '6.4 - 8.7',   '1': '< 6.4' },
     },
     female: {
-        '20-39': { '5': '>= 40.0', '4': '26.9 - 39.9', '3': '14.2 - 26.8', '2': '5.0 - 14.1', '1': '< 5.0' },
-        '40-59': { '5': '>= 35.0', '4': '23.4 - 34.9', '3': '9.7 - 23.3', '2': '4.0 - 9.6', '1': '< 4.0' },
-        '60-80': { '5': '>= 15.0', '4': '10.3 - 14.9', '3': '4.6 - 10.2', '2': '2.0 - 4.5', '1': '< 2.0' },
+        '20-39': { '5': '> 26.8', '4': '22.6 - 26.8', '3': '18.4 - 22.5', '2': '14.2 - 18.3', '1': '< 14.2' },
+        '40-59': { '5': '> 23.3', '4': '18.9 - 23.3', '3': '14.3 - 18.8', '2': '9.7 - 14.2',  '1': '< 9.7' },
+        '60-80': { '5': '> 10.2', '4': '8.4 - 10.2',  '3': '6.5 - 8.3',   '2': '4.6 - 6.4',   '1': '< 4.6' },
     }
 };
 
-// Data for calculation logic, simplified to make the calculation function more robust.
+// Data for calculation logic, structured as an array of thresholds from highest to lowest.
 const oneLegCalculationData = {
     male: {
-        '20-39': { '5': 34.8, '4': [27.1, 34.7], '3': [19.3, 27.0], '2': [5.0, 19.2] },
-        '40-59': { '5': 40.0, '4': [27.0, 39.9], '3': [11.5, 26.9], '2': [4.0, 11.4] },
-        '60-80': { '5': 20.0, '4': [13.5, 19.9], '3': [6.4, 13.4], '2': [3.0, 6.3] },
+        '20-39': [ // min: 19.3, max: 34.8
+            { points: 5, threshold: 34.9 },
+            { points: 4, threshold: 29.7 },
+            { points: 3, threshold: 24.5 },
+            { points: 2, threshold: 19.3 },
+        ],
+        '40-59': [ // min: 11.5, max: 26.9
+            { points: 5, threshold: 27.0 },
+            { points: 4, threshold: 21.9 },
+            { points: 3, threshold: 16.7 },
+            { points: 2, threshold: 11.5 },
+        ],
+        '60-80': [ // min: 6.4, max: 13.4
+            { points: 5, threshold: 13.5 },
+            { points: 4, threshold: 11.2 },
+            { points: 3, threshold: 8.8 },
+            { points: 2, threshold: 6.4 },
+        ],
     },
     female: {
-        '20-39': { '5': 40.0, '4': [26.9, 39.9], '3': [14.2, 26.8], '2': [5.0, 14.1] },
-        '40-59': { '5': 35.0, '4': [23.4, 34.9], '3': [9.7, 23.3], '2': [4.0, 9.6] },
-        '60-80': { '5': 15.0, '4': [10.3, 14.9], '3': [4.6, 10.2], '2': [2.0, 4.5] },
+        '20-39': [ // min: 14.2, max: 26.8
+            { points: 5, threshold: 26.9 },
+            { points: 4, threshold: 22.6 },
+            { points: 3, threshold: 18.4 },
+            { points: 2, threshold: 14.2 },
+        ],
+        '40-59': [ // min: 9.7, max: 23.3
+            { points: 5, threshold: 23.4 },
+            { points: 4, threshold: 18.9 },
+            { points: 3, threshold: 14.3 },
+            { points: 2, threshold: 9.7 },
+        ],
+        '60-80': [ // min: 4.6, max: 10.2
+            { points: 5, threshold: 10.3 },
+            { points: 4, threshold: 8.4 },
+            { points: 3, threshold: 6.5 },
+            { points: 2, threshold: 4.6 },
+        ],
     }
 };
 
@@ -66,21 +98,15 @@ export function calculateOneLegResult(gender: 'male' | 'female', ageRange: strin
     const ageKey = ageGroupMapping[ageRange] as keyof typeof oneLegCalculationData.male;
     if (!ageKey) return { points: 0, label: 'N/A' };
 
-    const benchmarks = oneLegCalculationData[gender][ageKey];
-    if (!benchmarks) return { points: 0, label: 'N/A' };
+    const thresholds = oneLegCalculationData[gender][ageKey];
+    if (!thresholds) return { points: 0, label: 'N/A' };
 
-    // Check from highest points to lowest
-    if (score >= benchmarks['5']) return { points: 5, label: pointLevels[5] };
+    for (const level of thresholds) {
+        if (score >= level.threshold) {
+            return { points: level.points, label: pointLevels[level.points] };
+        }
+    }
     
-    const range4 = benchmarks['4'];
-    if (score >= range4[0] && score <= range4[1]) return { points: 4, label: pointLevels[4] };
-    
-    const range3 = benchmarks['3'];
-    if (score >= range3[0] && score <= range3[1]) return { points: 3, label: pointLevels[3] };
-    
-    const range2 = benchmarks['2'];
-    if (score >= range2[0] && score <= range2[1]) return { points: 2, label: pointLevels[2] };
-    
-    // If it's none of the above, it's poor (point 1)
+    // If score is below all thresholds, it's the lowest category.
     return { points: 1, label: pointLevels[1] };
 }
