@@ -32,10 +32,10 @@ function BenchmarkTable({ gender, highlightInfo }: {
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead className="w-[50px] text-center px-2">Points</TableHead>
-                        <TableHead className="w-[100px] px-2">Level</TableHead>
+                        <TableHead className="w-[50px] text-center px-2 text-base">Points</TableHead>
+                        <TableHead className="w-[100px] px-2 text-base">Level</TableHead>
                         {ageGroups.map(ageKey => (
-                            <TableHead key={ageKey} className="text-center min-w-[80px] px-2 text-xs">{reverseAgeGroupMapping[ageKey]}</TableHead>
+                            <TableHead key={ageKey} className="text-center min-w-[80px] px-2 text-sm">{reverseAgeGroupMapping[ageKey]}</TableHead>
                         ))}
                     </TableRow>
                 </TableHeader>
@@ -47,10 +47,10 @@ function BenchmarkTable({ gender, highlightInfo }: {
                         return (
                             <TableRow key={points}>
                                 <TableCell className={cn(
-                                    "font-extrabold text-lg text-center px-2 transition-all duration-500",
+                                    "font-extrabold text-xl text-center px-2 transition-all duration-500",
                                     isRowHighlighted && 'scale-150 bg-accent/30 dark:bg-accent/30 animate-rank-one-glow relative z-10 rounded-lg'
                                 )}>{points}</TableCell>
-                                <TableCell className="font-semibold px-2">{level}</TableCell>
+                                <TableCell className="font-semibold px-2 text-base">{level}</TableCell>
                                 {ageGroups.map(ageKey => {
                                     const isHighlighted = 
                                         isRowHighlighted &&
@@ -65,7 +65,7 @@ function BenchmarkTable({ gender, highlightInfo }: {
                                     const reps = benchmarksForAge[points as keyof typeof benchmarksForAge];
 
                                     return (
-                                        <TableCell key={ageKey} className={cn("text-center font-mono px-2 transition-all duration-500", cellClasses)}>
+                                        <TableCell key={ageKey} className={cn("text-center font-mono px-2 transition-all duration-500 text-base", cellClasses)}>
                                             {reps}
                                         </TableCell>
                                     );
