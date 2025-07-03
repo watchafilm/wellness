@@ -27,12 +27,12 @@ const zoneColorClasses: { [key: number]: string } = {
 };
 
 const visualAgeToDisplayAge: { [key: string]: string } = {
-    '26-30': '20-29',
-    '36-40': '30-39',
-    '46-50': '40-49',
-    '56-60': '50-59',
-    '66-70': '60-69',
-    '76-80': '70+',
+    '26-30': '20-29 ปี',
+    '36-40': '30-39 ปี',
+    '46-50': '40-49 ปี',
+    '56-60': '50-59 ปี',
+    '66-70': '60-69 ปี',
+    '76-80': '70+ ปี',
 };
 
 function BenchmarkTable({ gender, highlightInfo }: {
@@ -78,14 +78,13 @@ function BenchmarkTable({ gender, highlightInfo }: {
                                                 zoneColorClasses[zone]
                                             )}
                                         >
-                                            {/* Highlighter Divs changed to borders with glow */}
-                                            {isRowHighlighted && <div className="absolute inset-0 border-y-2 border-primary/30 animate-reveal-x origin-left animate-highlight-glow" />}
-                                            {isColHighlighted && <div className="absolute inset-0 border-x-2 border-primary/30 animate-reveal-y origin-top animate-highlight-glow" />}
+                                            {isRowHighlighted && <div className="absolute inset-0 border-y-2 border-accent/30 bg-accent/10 animate-reveal-x origin-left animate-highlight-glow" />}
+                                            {isColHighlighted && <div className="absolute inset-0 border-x-2 border-accent/30 bg-accent/10 animate-reveal-y origin-top animate-highlight-glow" />}
                                             
                                             {isCellHighlighted && (
                                                 <>
                                                     <div className={cn(
-                                                        "absolute inset-0 animate-pop-in border-2 border-primary",
+                                                        "absolute inset-0 animate-pop-in border-2 border-accent",
                                                         zoneColorClasses[zone]
                                                     )} />
                                                     <div className="absolute inset-0 flex items-center justify-center opacity-0 animate-scale-in-text">

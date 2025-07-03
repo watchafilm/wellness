@@ -100,10 +100,10 @@ export default {
         },
         'highlight-glow': {
           '0%, 100%': {
-            boxShadow: 'inset 0 0 6px hsl(var(--primary)), 0 0 6px hsl(var(--primary))',
+            boxShadow: 'inset 0 0 6px hsl(var(--accent)), 0 0 6px hsl(var(--accent))',
           },
           '50%': {
-            boxShadow: 'inset 0 0 12px hsl(var(--primary)), 0 0 12px hsl(var(--primary))',
+            boxShadow: 'inset 0 0 12px hsl(var(--accent)), 0 0 12px hsl(var(--accent))',
           },
         },
         'reveal-x': {
