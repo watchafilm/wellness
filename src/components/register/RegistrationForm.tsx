@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Image from 'next/image';
+import { CheckCircle2, PartyPopper } from 'lucide-react';
 
 import { Button } from "@/components/ui/button";
 import {
@@ -15,7 +17,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -41,6 +43,7 @@ const formSchema = z.object({
 export function RegistrationForm() {
   const { toast } = useToast();
   const { addParticipant } = useParticipants();
+  const [submissionResult, setSubmissionResult] = useState<{ id: string; name: string } | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -54,8 +57,9 @@ export function RegistrationForm() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
+    const fullName = `${values.firstName} ${values.lastName}`;
     const newId = addParticipant({
-      name: `${values.firstName} ${values.lastName}`,
+      name: fullName,
       gender: values.gender,
       ageRange: values.ageRange,
       phone: values.phone,
@@ -63,12 +67,48 @@ export function RegistrationForm() {
       lineId: values.lineId,
     });
     
+    setSubmissionResult({ id: newId, name: values.firstName });
+    
     toast({
       title: "ลงทะเบียนสำเร็จ!",
-      description: `ยินดีต้อนรับคุณ ${values.firstName}! ID ของคุณคือ ${newId}`,
+      description: `ผู้เล่นใหม่ '${fullName}' ถูกเพิ่มในระบบแล้ว`,
     });
     
     form.reset();
+  }
+
+  const handleRegisterAnother = () => {
+    setSubmissionResult(null);
+  }
+
+  if (submissionResult) {
+    return (
+        <Card className="w-full shadow-2xl text-center animate-pop-in">
+            <CardHeader>
+                 <div className="mx-auto bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400 rounded-full p-4 w-fit mb-4">
+                    <PartyPopper className="h-10 w-10"/>
+                </div>
+                <CardTitle className="font-headline text-3xl text-primary">ลงทะเบียนสำเร็จ!</CardTitle>
+                <CardDescription className="text-base pt-2">
+                    ยินดีต้อนรับคุณ <span className="font-semibold text-foreground">{submissionResult.name}</span>!
+                </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+                <div className="bg-secondary/80 rounded-lg p-4">
+                    <p className="text-sm text-muted-foreground">รหัสผู้เล่นของคุณคือ:</p>
+                    <p className="text-4xl font-bold font-mono tracking-widest text-accent py-2">{submissionResult.id}</p>
+                    <p className="text-xs text-muted-foreground">กรุณาแจ้งรหัสนี้แก่เจ้าหน้าที่ในแต่ละฐาน</p>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                    ชื่อของคุณจะปรากฏบน Scoreboard ในหน้าจอหลัก
+                </p>
+                 <Button onClick={handleRegisterAnother} size="lg" className="w-full">
+                    <CheckCircle2 className="mr-2 h-5 w-5" />
+                    ลงทะเบียนคนถัดไป
+                </Button>
+            </CardContent>
+        </Card>
+    );
   }
 
   return (
