@@ -1,4 +1,6 @@
 
+"use client";
+
 export const pointColors: { [key: number]: string } = {
     5: 'bg-green-300/60 dark:bg-green-800/60',      // Healthy
     4: 'bg-yellow-200/60 dark:bg-yellow-700/60',   // Healthy-Acceptable
@@ -110,4 +112,24 @@ export function calculateWhRatioPoints(gender: 'male' | 'female', waist: number,
         closestWaist: closestWaist,
         closestHeight: closestHeight,
     };
+}
+
+/**
+ * Estimates WHtR points from the ratio alone. This is an approximation for the scoreboard.
+ * @returns A number representing the points (1-5).
+ */
+export function calculateWhRatioPointsFromRatio(gender: 'male' | 'female', ratio: number): number {
+    if (gender === 'male') {
+        if (ratio <= 0.50) return 5; // Healthy
+        if (ratio <= 0.53) return 4; // Acceptable
+        if (ratio <= 0.57) return 3; // Overweight
+        if (ratio <= 0.63) return 2; // High Risk
+        return 1; // Very High Risk
+    } else { // female
+        if (ratio <= 0.48) return 5; // Healthy
+        if (ratio <= 0.53) return 4; // Acceptable
+        if (ratio <= 0.58) return 3; // Overweight
+        if (ratio <= 0.62) return 2; // High Risk
+        return 1; // Very High Risk
+    }
 }

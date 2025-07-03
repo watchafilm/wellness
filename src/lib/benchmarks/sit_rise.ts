@@ -1,4 +1,6 @@
 
+"use client";
+
 export const scoreHeadings = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10];
 export const ageGroupRows = ['26-30', '36-40', '46-50', '56-60', '66-70', '76-80'];
 
@@ -112,4 +114,23 @@ export function mapAppAgeToVisualAge(appAgeRange: string): string {
 
     // Fallback for any other case, though it shouldn't happen with current data.
     return '26-30';
+}
+
+/**
+ * Calculates Sit and Rise points based on the calculated zone.
+ * Zone 1 (Poor) -> 1pt, Zone 2 (Avg) -> 3pt, Zone 3 (Good) -> 4pt, Zone 4 (Exc) -> 5pt.
+ */
+export function calculateSitRisePoints(gender: 'male' | 'female', appAgeRange: string, score: number): number {
+    const visualAgeGroup = mapAppAgeToVisualAge(appAgeRange);
+    if (!visualAgeGroup) return 0;
+    
+    const zone = getSitRiseZone(gender, visualAgeGroup, score);
+    
+    switch (zone) {
+        case 1: return 1; // Poor -> Poor
+        case 2: return 3; // Average -> Average
+        case 3: return 4; // Good -> Good
+        case 4: return 5; // Excellent -> Excellent
+        default: return 0;
+    }
 }
