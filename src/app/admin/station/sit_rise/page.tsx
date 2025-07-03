@@ -78,8 +78,8 @@ function BenchmarkTable({ gender, highlightInfo }: {
                                                 zoneColorClasses[zone]
                                             )}
                                         >
-                                            {isRowHighlighted && <div className="absolute inset-0 border-y-2 border-accent/30 bg-accent/10 animate-reveal-x origin-left animate-highlight-glow" />}
-                                            {isColHighlighted && <div className="absolute inset-0 border-x-2 border-accent/30 bg-accent/10 animate-reveal-y origin-top animate-highlight-glow" />}
+                                            {isRowHighlighted && <div className="absolute inset-0 border-y-2 border-accent bg-accent/10 animate-reveal-x origin-left animate-highlight-glow" />}
+                                            {isColHighlighted && <div className="absolute inset-0 border-x-2 border-accent bg-accent/10 animate-reveal-y origin-top animate-highlight-glow" />}
                                             
                                             {isCellHighlighted && (
                                                 <>
@@ -89,7 +89,7 @@ function BenchmarkTable({ gender, highlightInfo }: {
                                                     )} />
                                                     <div className="absolute inset-0 flex items-center justify-center opacity-0 animate-pulsing-score">
                                                         <span 
-                                                            className="relative font-extrabold text-2xl text-white" 
+                                                            className="relative font-extrabold text-2xl text-accent" 
                                                             style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.7)' }}
                                                         >
                                                             {score}

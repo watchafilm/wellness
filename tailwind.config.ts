@@ -119,8 +119,8 @@ export default {
           '100%': { transform: 'scale(1)', opacity: '1' },
         },
         'pulsing-score': {
-          '0%, 100%': { transform: 'scale(2.0)', opacity: '1' },
-          '50%': { transform: 'scale(2.2)', opacity: '1' },
+          '0%, 100%': { transform: 'scale(2.5)', opacity: '1' },
+          '50%': { transform: 'scale(2.8)', opacity: '1' },
         },
       },
       animation: {
