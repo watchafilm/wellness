@@ -13,6 +13,7 @@ import { pushupsBenchmarkTextData, calculatePushupsPoints, pointLevels } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 
 const ageGroupMapping: { [key: string]: string } = {
@@ -65,6 +66,8 @@ export default function PushupsStationPage() {
     const { toast } = useToast();
     const [lastSubmission, setLastSubmission] = useState<{ participantId: string; points: number } | null>(null);
     const [currentParticipant, setCurrentParticipant] = useState<Participant | null>(null);
+    const [activeTab, setActiveTab] = useState<'male' | 'female'>('male');
+    const [activeAccordionItem, setActiveAccordionItem] = useState<string | undefined>(undefined);
     
     const reverseAgeGroupMapping = useMemo(() => Object.fromEntries(Object.entries(ageGroupMapping).map(([key, value]) => [value, key])), []);
 
@@ -87,6 +90,7 @@ export default function PushupsStationPage() {
             toast({ variant: "destructive", title: "Error", description: `Participant ID "${participantId}" not found.` });
             setCurrentParticipant(null);
             setLastSubmission(null);
+            setActiveAccordionItem(undefined);
             return;
         }
 
@@ -96,6 +100,10 @@ export default function PushupsStationPage() {
         
         setCurrentParticipant(participant);
         setLastSubmission({ participantId: participant.id, points });
+
+        setActiveTab(participant.gender);
+        const ageKey = ageGroupMapping[participant.ageRange];
+        setActiveAccordionItem(`${participant.gender}-${ageKey}`);
 
         toast({
             title: "Score Submitted!",
@@ -108,20 +116,52 @@ export default function PushupsStationPage() {
         scoreInput?.focus();
     };
 
-    // Reset animation after it plays
     useEffect(() => {
        if (lastSubmission) {
            const timer = setTimeout(() => {
                setLastSubmission(null);
-           }, 3500); // Animation is 3s, remove highlight after.
+           }, 3500); 
            return () => clearTimeout(timer);
        }
     }, [lastSubmission]);
     
+    const renderAccordion = (gender: 'male' | 'female') => (
+        <Accordion 
+            type="single" 
+            collapsible 
+            value={activeAccordionItem} 
+            onValueChange={setActiveAccordionItem} 
+            className="w-full space-y-2"
+        >
+            {Object.keys(pushupsBenchmarkTextData[gender]).map((ageDataKey) => {
+                const itemValue = `${gender}-${ageDataKey}`;
+                return (
+                    <AccordionItem key={itemValue} value={itemValue} className="border-b-0 rounded-lg bg-card transition-colors hover:bg-secondary/50">
+                        <AccordionTrigger className="px-4 py-3 text-base font-semibold hover:no-underline rounded-lg">
+                            {reverseAgeGroupMapping[ageDataKey]}
+                        </AccordionTrigger>
+                        <AccordionContent className="px-1 pb-1">
+                             <BenchmarkTable 
+                                gender={gender}
+                                ageRange={reverseAgeGroupMapping[ageDataKey]}
+                                highlightedPoints={
+                                    currentParticipant?.gender === gender && 
+                                    ageGroupMapping[currentParticipant.ageRange] === ageDataKey &&
+                                    lastSubmission?.participantId === currentParticipant.id
+                                    ? lastSubmission.points
+                                    : null
+                                }
+                            />
+                        </AccordionContent>
+                    </AccordionItem>
+                );
+            })}
+        </Accordion>
+    );
 
     return (
-         <div className="container mx-auto grid grid-cols-1 lg:grid-cols-5 gap-8 py-8">
-            <div className="lg:col-span-2">
+         <div className="container mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 py-8">
+            <div className="lg:col-span-1">
                 <Card className="w-full shadow-lg border-none sticky top-8">
                     <CardHeader>
                         <div className="flex items-center gap-4">
@@ -150,63 +190,29 @@ export default function PushupsStationPage() {
                 </Card>
             </div>
             
-            <div className="lg:col-span-3">
+            <div className="lg:col-span-2">
                 <Card className="w-full shadow-lg border-none min-h-[500px]">
                     <CardHeader>
                         <CardTitle className="font-headline text-2xl flex items-center gap-2">
                             <Trophy className="text-accent" /> Push-ups Benchmark
                         </CardTitle>
                         <CardDescription>
-                            {currentParticipant 
-                                ? `Highlighting score for ${currentParticipant.name} (Gender: ${currentParticipant.gender}, Age: ${currentParticipant.ageRange})`
-                                : "Submit a score to view and highlight the result on the benchmark tables."}
+                            {currentParticipant && lastSubmission
+                                ? `Highlighting score for ${currentParticipant.name} (Age: ${currentParticipant.ageRange})`
+                                : "Submit a score to automatically select and expand the relevant benchmark."}
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <Tabs defaultValue="male" className="w-full">
+                        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'male' | 'female')} className="w-full">
                             <TabsList className="grid w-full grid-cols-2 mb-4">
                                 <TabsTrigger value="male">Male</TabsTrigger>
                                 <TabsTrigger value="female">Female</TabsTrigger>
                             </TabsList>
                             <TabsContent value="male">
-                                <div className="space-y-6">
-                                    {Object.keys(pushupsBenchmarkTextData.male).map((ageDataKey) => (
-                                        <div key={`male-${ageDataKey}`}>
-                                            <h3 className="text-lg font-semibold mb-2 text-primary">{reverseAgeGroupMapping[ageDataKey]}</h3>
-                                            <BenchmarkTable 
-                                                gender="male"
-                                                ageRange={reverseAgeGroupMapping[ageDataKey]}
-                                                highlightedPoints={
-                                                    currentParticipant?.gender === 'male' && 
-                                                    ageGroupMapping[currentParticipant.ageRange] === ageDataKey &&
-                                                    lastSubmission?.participantId === currentParticipant.id
-                                                    ? lastSubmission.points
-                                                    : null
-                                                }
-                                            />
-                                        </div>
-                                    ))}
-                                </div>
+                                {renderAccordion('male')}
                             </TabsContent>
                             <TabsContent value="female">
-                                <div className="space-y-6">
-                                    {Object.keys(pushupsBenchmarkTextData.female).map((ageDataKey) => (
-                                        <div key={`female-${ageDataKey}`}>
-                                            <h3 className="text-lg font-semibold mb-2 text-primary">{reverseAgeGroupMapping[ageDataKey]}</h3>
-                                            <BenchmarkTable 
-                                                gender="female"
-                                                ageRange={reverseAgeGroupMapping[ageDataKey]}
-                                                highlightedPoints={
-                                                    currentParticipant?.gender === 'female' && 
-                                                    ageGroupMapping[currentParticipant.ageRange] === ageDataKey &&
-                                                    lastSubmission?.participantId === currentParticipant.id
-                                                    ? lastSubmission.points
-                                                    : null
-                                                }
-                                            />
-                                        </div>
-                                    ))}
-                                </div>
+                                {renderAccordion('female')}
                             </TabsContent>
                         </Tabs>
                     </CardContent>
