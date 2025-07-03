@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
   title: 'Genfosis Biohacking Challenge',
-  description: 'Biohacking 1: Measurements of Biological Aging',
+  description: 'Biohacking 1: Fitness Challenge',
 };
 
 export default function RootLayout({

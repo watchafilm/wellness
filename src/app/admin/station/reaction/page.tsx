@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from '@/components/ui/input';
 import { useToast } from "@/hooks/use-toast";
-import { Timer } from 'lucide-react';
+import { Timer, Loader2 } from 'lucide-react';
 import { reactionTrendData, calculateReactionResult } from '@/lib/benchmarks/reaction';
 import {
   ComposedChart,
@@ -20,6 +20,7 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  ReferenceLine,
 } from 'recharts';
 
 const ageRangeToMidpoint = (ageRange: string): number => {
@@ -62,7 +63,7 @@ const PulsingDot = (props: any) => {
 };
 
 export default function ReactionStationPage() {
-    const { participants, updateScore } = useParticipants();
+    const { participants, updateScore, loading } = useParticipants();
     const { toast } = useToast();
     const [lastSubmission, setLastSubmission] = useState<{ participant: Participant; score: number; result: { points: number; label: string; } } | null>(null);
 
@@ -94,11 +95,6 @@ export default function ReactionStationPage() {
         const updatedParticipant = { ...participant, scores: { ...participant.scores, reaction: score } };
         setLastSubmission({ participant: updatedParticipant, score, result });
 
-        toast({
-            title: "Score Submitted!",
-            description: `${participant.name} scored ${score}s, earning ${result.points} points (${result.label}).`,
-        });
-        
         form.reset();
         const pIdInput = form.elements.namedItem('participantId') as HTMLInputElement;
         pIdInput?.focus();
@@ -115,12 +111,20 @@ export default function ReactionStationPage() {
             level: lastSubmission.result.label,
         };
     }, [lastSubmission]);
+    
+    if (loading) {
+        return (
+            <div className="flex h-full w-full items-center justify-center pt-8">
+                <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            </div>
+        );
+    }
 
     return (
         <div className="container mx-auto py-8">
             <Card className="w-full shadow-lg border-none">
                 <CardHeader className="flex flex-col gap-4 p-4 sm:p-6">
-                    <div className="flex flex-row items-start justify-between gap-4">
+                    <div className="flex flex-col md:flex-row items-start justify-between gap-4 w-full">
                         <div className="flex-1">
                             <CardTitle className="font-headline text-2xl flex items-center gap-3">
                                 <Timer className="h-8 w-8 text-primary" />
@@ -128,7 +132,7 @@ export default function ReactionStationPage() {
                             </CardTitle>
                         </div>
                         
-                        <form onSubmit={handleSubmit} className="w-full max-w-[220px] space-y-2">
+                        <form onSubmit={handleSubmit} className="w-full md:max-w-[220px] space-y-2">
                             <Input 
                                 name="participantId" 
                                 placeholder="Participant ID" 
@@ -142,7 +146,6 @@ export default function ReactionStationPage() {
                         </form>
                     </div>
 
-                    {/* Centered Result Section */}
                     <div className="flex justify-center items-center h-24 text-center">
                         {lastSubmission ? (
                             <div key={lastSubmission.participant.id} className="transition-all duration-500 animate-pop-in">
@@ -185,7 +188,17 @@ export default function ReactionStationPage() {
                             <Line data={reactionTrendData} type="monotone" dataKey="male" stroke="#3b82f6" strokeWidth={3} dot={false} name="Male (Average)" activeDot={false} />
                             <Line data={reactionTrendData} type="monotone" dataKey="female" stroke="#ec4899" strokeWidth={3} dot={false} name="Female (Average)" activeDot={false} />
                             
-                            {/* This scatter plot only shows the most recent submission */}
+                            {highlightedPoint && (
+                                <ReferenceLine y={highlightedPoint.time} stroke="hsl(var(--accent))" strokeDasharray="4 4" isFront>
+                                     <animate attributeName="stroke-dashoffset" from="1000" to="0" dur="2s" repeatCount="1" />
+                                </ReferenceLine>
+                            )}
+                             {highlightedPoint && (
+                                <ReferenceLine x={highlightedPoint.age} stroke="hsl(var(--accent))" strokeDasharray="4 4" isFront>
+                                    <animate attributeName="stroke-dashoffset" from="1000" to="0" dur="2s" repeatCount="1" />
+                                </ReferenceLine>
+                            )}
+
                             {highlightedPoint && (
                                 <Scatter
                                     name="Last score"
@@ -194,6 +207,7 @@ export default function ReactionStationPage() {
                                     fill="hsl(var(--accent))"
                                     shape={<PulsingDot />}
                                     isAnimationActive={false}
+                                    zIndex={100}
                                 />
                             )}
                         </ComposedChart>

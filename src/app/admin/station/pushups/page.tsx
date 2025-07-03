@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from '@/components/ui/input';
 import { useToast } from "@/hooks/use-toast";
-import { Dumbbell } from 'lucide-react';
+import { Dumbbell, Loader2 } from 'lucide-react';
 import { pushupsBenchmarkTextData, calculatePushupsPoints, pointLevels } from '@/lib/benchmarks/pushups';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from '@/lib/utils';
@@ -80,7 +80,7 @@ function BenchmarkTable({ gender, highlightInfo }: {
 
 
 export default function PushupsStationPage() {
-    const { participants, updateScore } = useParticipants();
+    const { participants, updateScore, loading } = useParticipants();
     const { toast } = useToast();
     const [lastSubmission, setLastSubmission] = useState<{ participantId: string; points: number } | null>(null);
     const [currentParticipant, setCurrentParticipant] = useState<Participant | null>(null);
@@ -116,21 +116,24 @@ export default function PushupsStationPage() {
         setCurrentParticipant(participant);
         setLastSubmission({ participantId: participant.id, points });
         setActiveTab(participant.gender);
-
-        toast({
-            title: "Score Submitted!",
-            description: `${participant.name} scored ${score} reps, earning ${points} points (${pointLevels[points] || 'N/A'}).`,
-        });
         
         form.reset();
         const pIdInput = form.elements.namedItem('participantId') as HTMLInputElement;
         pIdInput?.focus();
     };
     
+    if (loading) {
+        return (
+            <div className="flex h-full w-full items-center justify-center pt-8">
+                <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            </div>
+        );
+    }
+
     return (
         <div className="container mx-auto py-8">
             <Card className="w-full shadow-lg border-none">
-                <CardHeader className="flex flex-row items-start justify-between gap-4 p-4 sm:p-6">
+                <CardHeader className="flex flex-col md:flex-row items-start justify-between gap-4 p-4 sm:p-6">
                     <div className="flex-1">
                         <CardTitle className="font-headline text-2xl flex items-center gap-3">
                             <Dumbbell className="h-8 w-8 text-accent" />
@@ -143,7 +146,7 @@ export default function PushupsStationPage() {
                         </CardDescription>
                     </div>
                     
-                    <form onSubmit={handleSubmit} className="w-full max-w-[220px] space-y-2">
+                    <form onSubmit={handleSubmit} className="w-full md:max-w-[220px] space-y-2">
                         <Input name="participantId" placeholder="Participant ID" required autoComplete="off" className="h-9"/>
                         <Input name="score" type="number" step="1" min="0" placeholder="Score (reps)" required className="h-9"/>
                         <Button type="submit" className="w-full h-9 bg-primary text-primary-foreground hover:bg-primary/90">Submit</Button>

@@ -144,8 +144,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                  <div className="flex flex-1 items-center justify-center gap-x-10">
                     <Image src="https://www.genfosis.com/images/Genfosis_Logo_PNG.webp" alt="Genfosis Logo" width={200} height={400} className="h-20 w-auto" />
                     <div className="h-12 w-px bg-border hidden sm:block" />
-                    <h1 className="text-lg text-primary hidden font-bold sm:block">
-                        Biohacking 1: Measurements of Biological Aging
+                    <h1 className="text-xl text-primary hidden font-bold sm:block">
+                        Biohacking 1: Fitness Challenge
                     </h1>
                 </div>
             </header>

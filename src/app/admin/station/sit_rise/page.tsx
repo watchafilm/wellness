@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from '@/components/ui/input';
 import { useToast } from "@/hooks/use-toast";
-import { PersonStanding } from 'lucide-react';
+import { PersonStanding, Loader2 } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -110,7 +110,7 @@ function BenchmarkTable({ gender, highlightInfo }: {
 }
 
 export default function SitRiseVisualStationPage() {
-    const { participants, updateScore } = useParticipants();
+    const { participants, updateScore, loading } = useParticipants();
     const { toast } = useToast();
     const [highlightInfo, setHighlightInfo] = useState<{ ageRange: string; score: number; } | null>(null);
     const [currentParticipant, setCurrentParticipant] = useState<Participant | null>(null);
@@ -150,26 +150,25 @@ export default function SitRiseVisualStationPage() {
         setHighlightInfo({ ageRange: participant.ageRange, score });
         setActiveTab(participant.gender);
 
-        const visualAgeGroup = mapAppAgeToVisualAge(participant.ageRange);
-        const zone = getSitRiseZone(participant.gender, visualAgeGroup, score);
-        const zoneText = { 4: 'Excellent', 3: 'Good', 2: 'Average', 1: 'Poor' }[zone];
-
-        toast({
-            title: "Score Submitted!",
-            description: `${participant.name} scored ${score}, which is in the ${zoneText} zone.`,
-        });
-        
         form.reset();
         const pIdInput = form.elements.namedItem('participantId') as HTMLInputElement;
         pIdInput?.focus();
     };
     
+    if (loading) {
+        return (
+            <div className="flex h-full w-full items-center justify-center pt-8">
+                <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            </div>
+        );
+    }
+
     return (
         <div className="container mx-auto py-8 space-y-6">
              <Card className="w-full shadow-lg border-none">
-                <CardHeader className="flex flex-row items-center justify-between gap-4 p-4 sm:p-6">
-                    <div className="flex items-center gap-4">
-                        <PersonStanding className="h-10 w-10 text-primary" />
+                <CardHeader className="flex flex-col md:flex-row items-center justify-between gap-4 p-4 sm:p-6">
+                    <div className="flex items-center gap-4 flex-1">
+                        <PersonStanding className="h-10 w-10 text-primary hidden sm:block" />
                          <div>
                             <CardTitle className="font-headline text-3xl">Sit and Rise Test</CardTitle>
                              <CardDescription className="mt-1">
@@ -179,8 +178,8 @@ export default function SitRiseVisualStationPage() {
                             </CardDescription>
                         </div>
                     </div>
-                     <form onSubmit={handleSubmit} className="flex items-end gap-2 w-full max-w-sm">
-                        <div className="flex-1">
+                     <form onSubmit={handleSubmit} className="flex flex-wrap sm:flex-nowrap items-end gap-2 w-full md:w-auto">
+                        <div className="flex-1 min-w-[120px]">
                             <label htmlFor="participantId" className="text-sm font-medium text-muted-foreground">Participant ID</label>
                             <Input id="participantId" name="participantId" placeholder="P001" required autoComplete="off" className="h-9 mt-1"/>
                         </div>

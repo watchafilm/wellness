@@ -14,6 +14,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Loader2 } from 'lucide-react';
 
 
 // Import all calculation functions and level definitions
@@ -86,7 +87,15 @@ const levelToVariant: Record<string, BadgeVariant> = {
 
 
 export default function AdminDashboardPage() {
-  const { participants } = useParticipants();
+  const { participants, loading } = useParticipants();
+
+  if (loading) {
+    return (
+      <div className="flex h-[80vh] w-full items-center justify-center">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   const rankedParticipants = [...participants].map(p => {
     const stationResults = Object.keys(stations).reduce((acc, key) => {
@@ -113,7 +122,7 @@ export default function AdminDashboardPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="overflow-x-auto p-6 pt-0">
-          <Table className="w-[98%] mx-auto">
+          <Table className="w-[90%] mx-auto">
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[80px] text-center font-bold px-2 py-3">อันดับ</TableHead>

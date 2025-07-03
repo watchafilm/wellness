@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Image from 'next/image';
-import { CheckCircle2, PartyPopper } from 'lucide-react';
+import { CheckCircle2, PartyPopper, Loader2 } from 'lucide-react';
 
 import { Button } from "@/components/ui/button";
 import {
@@ -44,6 +44,7 @@ export function RegistrationForm() {
   const { toast } = useToast();
   const { addParticipant } = useParticipants();
   const [submissionResult, setSubmissionResult] = useState<{ id: string; name: string } | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -56,25 +57,33 @@ export function RegistrationForm() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    const fullName = `${values.firstName} ${values.lastName}`;
-    const newId = addParticipant({
-      name: fullName,
-      gender: values.gender,
-      ageRange: values.ageRange,
-      phone: values.phone,
-      email: values.email,
-      lineId: values.lineId,
-    });
-    
-    setSubmissionResult({ id: newId, name: values.firstName });
-    
-    toast({
-      title: "ลงทะเบียนสำเร็จ!",
-      description: `ผู้เล่นใหม่ '${fullName}' ถูกเพิ่มในระบบแล้ว`,
-    });
-    
-    form.reset();
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsSubmitting(true);
+    try {
+      const fullName = `${values.firstName} ${values.lastName}`;
+      const newId = await addParticipant({
+        name: fullName,
+        gender: values.gender,
+        ageRange: values.ageRange,
+        phone: values.phone,
+        email: values.email,
+        lineId: values.lineId,
+      });
+      
+      setSubmissionResult({ id: newId, name: values.firstName });
+      
+      toast({
+        title: "ลงทะเบียนสำเร็จ!",
+        description: `ผู้เล่นใหม่ '${fullName}' ถูกเพิ่มในระบบแล้ว`,
+      });
+      
+      form.reset();
+    } catch (error) {
+      console.error("Registration failed:", error);
+      // The error toast is handled in the useParticipants hook
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   const handleRegisterAnother = () => {
@@ -244,7 +253,10 @@ export function RegistrationForm() {
                   </FormItem>
                 )}
               />
-            <Button type="submit" className="w-full bg-accent text-accent-foreground hover:bg-accent/90" size="lg">ลงทะเบียน</Button>
+            <Button type="submit" disabled={isSubmitting} className="w-full bg-accent text-accent-foreground hover:bg-accent/90" size="lg">
+              {isSubmitting && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
+              {isSubmitting ? 'กำลังลงทะเบียน...' : 'ลงทะเบียน'}
+            </Button>
           </form>
         </Form>
       </CardContent>

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from '@/components/ui/input';
 import { useToast } from "@/hooks/use-toast";
-import { HeartPulse } from 'lucide-react';
+import { HeartPulse, Loader2 } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -92,7 +92,7 @@ function BenchmarkTable({ gender, highlightInfo }: {
 }
 
 export default function WhRatioStationPage() {
-    const { participants, updateScore } = useParticipants();
+    const { participants, updateScore, loading } = useParticipants();
     const { toast } = useToast();
     const [highlightInfo, setHighlightInfo] = useState<{ waist: number; height: number; } | null>(null);
     const [currentParticipant, setCurrentParticipant] = useState<Participant | null>(null);
@@ -133,23 +133,26 @@ export default function WhRatioStationPage() {
         setCurrentParticipant(participant);
         setHighlightInfo({ waist: result.closestWaist, height: result.closestHeight });
         setActiveTab(participant.gender);
-
-        toast({
-            title: "Score Submitted!",
-            description: `${participant.name} has a ratio of ${result.ratio.toFixed(3)}, earning ${result.points} points (${result.level}).`,
-        });
         
         form.reset();
         const pIdInput = form.elements.namedItem('participantId') as HTMLInputElement;
         pIdInput?.focus();
     };
     
+    if (loading) {
+        return (
+            <div className="flex h-full w-full items-center justify-center pt-8">
+                <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            </div>
+        );
+    }
+    
     return (
         <div className="container mx-auto py-8 space-y-6">
              <Card className="w-full shadow-lg border-none">
-                <CardHeader className="flex flex-row items-center justify-between gap-4 p-4 sm:p-6">
-                    <div className="flex items-center gap-4">
-                        <HeartPulse className="h-10 w-10 text-primary" />
+                <CardHeader className="flex flex-col md:flex-row items-center justify-between gap-4 p-4 sm:p-6">
+                    <div className="flex items-center gap-4 flex-1">
+                        <HeartPulse className="h-10 w-10 text-primary hidden sm:block" />
                          <div>
                             <CardTitle className="font-headline text-3xl">Waist-to-Height Ratio</CardTitle>
                              <CardDescription className="mt-1">
@@ -159,8 +162,8 @@ export default function WhRatioStationPage() {
                             </CardDescription>
                         </div>
                     </div>
-                     <form onSubmit={handleSubmit} className="flex items-end gap-2 w-full max-w-lg">
-                        <div className="flex-1">
+                     <form onSubmit={handleSubmit} className="flex flex-wrap sm:flex-nowrap items-end gap-2 w-full md:w-auto">
+                        <div className="flex-1 min-w-[120px]">
                             <label htmlFor="participantId" className="text-sm font-medium text-muted-foreground">Participant ID</label>
                             <Input id="participantId" name="participantId" placeholder="P001" required autoComplete="off" className="h-9 mt-1"/>
                         </div>
@@ -182,7 +185,7 @@ export default function WhRatioStationPage() {
                     <TabsTrigger value="male">Male</TabsTrigger>
                     <TabsTrigger value="female">Female</TabsTrigger>
                 </TabsList>
-                 <div className="flex justify-center items-center gap-4 mb-4 text-xs">
+                 <div className="flex justify-center items-center flex-wrap gap-x-4 gap-y-1 mb-4 text-xs">
                     <div className="flex items-center gap-1.5"><div className={cn("w-3 h-3 rounded-sm", pointColors[5])}></div>5 Points (Healthy)</div>
                     <div className="flex items-center gap-1.5"><div className={cn("w-3 h-3 rounded-sm", pointColors[4])}></div>4 Points (Acceptable)</div>
                     <div className="flex items-center gap-1.5"><div className={cn("w-3 h-3 rounded-sm", pointColors[3])}></div>3 Points (Overweight)</div>

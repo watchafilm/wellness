@@ -1,10 +1,29 @@
-import { create } from 'zustand';
+
+"use client";
+
+import { useState, useEffect } from 'react';
+import { db } from './firebase';
+import {
+  collection,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  onSnapshot,
+  runTransaction,
+  query,
+  orderBy,
+  type DocumentData,
+} from 'firebase/firestore';
 import type { StationKey } from './stations';
+import { useToast } from '@/hooks/use-toast';
+import { stations } from './stations';
 
 export type Scores = { [key in StationKey]?: number };
 
 export interface Participant {
-  id: string;
+  id: string; // P001, P002, etc.
   name: string;
   gender: 'male' | 'female';
   ageRange: string;
@@ -12,75 +31,150 @@ export interface Participant {
   email: string;
   lineId?: string;
   scores: Scores;
+  createdAt: number; // For ordering
 }
 
-// Initial mock data, to be replaced or supplemented by registration
-const mockParticipantsData: Participant[] = [
-    { id: 'P001', name: 'John Doe', ageRange: "20-29 ปี", gender: 'male', phone: '0812345678', email: 'john.d@example.com', scores: { pushups: 35, sit_rise: 4, sit_reach: 20, one_leg: 45, reaction: 0.3, wh_ratio: 0.48, grip: 55 }},
-    { id: 'P002', name: 'Jane Smith', ageRange: "30-39 ปี", gender: 'female', phone: '0812345679', email: 'jane.s@example.com', scores: { pushups: 22, sit_rise: 3, sit_reach: 25, one_leg: 30, reaction: 0.35, wh_ratio: 0.5, grip: 40 }},
-    { id: 'P003', name: 'Mike Johnson', ageRange: "40-49 ปี", gender: 'male', phone: '0812345680', email: 'mike.j@example.com', scores: { pushups: 18, sit_rise: 2, sit_reach: 15, one_leg: 20, reaction: 0.4, wh_ratio: 0.52, grip: 60 }},
-];
+export type NewParticipantData = Omit<Participant, 'id' | 'scores' | 'createdAt'>;
+export type UpdateParticipantData = Partial<Omit<Participant, 'id' | 'createdAt'>>;
 
-type NewParticipantData = Omit<Participant, 'id' | 'scores'>;
-type UpdateParticipantData = Partial<Omit<Participant, 'id'>>;
+const PARTICIPANTS_COLLECTION = 'participants';
+const COUNTER_DOC = 'counters';
+const PARTICIPANT_COUNTER_ID = 'participantId';
 
+async function getNextParticipantId(): Promise<string> {
+    const counterRef = doc(db, COUNTER_DOC, PARTICIPANT_COUNTER_ID);
 
-interface ParticipantState {
-  participants: Participant[];
-  addParticipant: (participant: NewParticipantData) => string;
-  updateScore: (stationKey: StationKey, participantId: string, score: number) => void;
-  getParticipant: (id: string) => Participant | undefined;
-  updateParticipant: (participantId: string, data: UpdateParticipantData) => void;
-  deleteParticipant: (participantId: string) => void;
+    try {
+        const newIdNumber = await runTransaction(db, async (transaction) => {
+            const counterDoc = await transaction.get(counterRef);
+            if (!counterDoc.exists()) {
+                transaction.set(counterRef, { currentId: 1 });
+                return 1;
+            }
+            const newId = counterDoc.data().currentId + 1;
+            transaction.update(counterRef, { currentId: newId });
+            return newId;
+        });
+        return `P${String(newIdNumber).padStart(3, '0')}`;
+    } catch (error) {
+        console.error("Transaction failed: ", error);
+        throw new Error("Could not generate new participant ID.");
+    }
 }
 
-// In a real app, you'd start with a higher number or fetch the last ID from a DB
-let idCounter = mockParticipantsData.length;
+export function useParticipants() {
+  const [participants, setParticipants] = useState<Participant[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
-export const useParticipants = create<ParticipantState>((set, get) => ({
-  participants: mockParticipantsData,
+  useEffect(() => {
+    const q = query(collection(db, PARTICIPANTS_COLLECTION), orderBy("createdAt", "asc"));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const participantsData: Participant[] = [];
+      querySnapshot.forEach((doc) => {
+        participantsData.push({ id: doc.id, ...doc.data() } as Participant);
+      });
+      setParticipants(participantsData);
+      setLoading(false);
+    }, (error) => {
+      console.error("Error fetching participants: ", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Could not fetch participants data.",
+      });
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [toast]);
+
+  const addParticipant = async (participantData: NewParticipantData): Promise<string> => {
+    setLoading(true);
+    try {
+      const newId = await getNextParticipantId();
+      const newParticipant: Omit<Participant, 'id'> = {
+        ...participantData,
+        scores: {},
+        createdAt: Date.now(),
+      };
+      await setDoc(doc(db, PARTICIPANTS_COLLECTION, newId), newParticipant);
+      // Toast is now handled in the component for a better user experience
+      return newId;
+    } catch (error) {
+      console.error("Error adding participant: ", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Could not add new participant.",
+      });
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateParticipant = async (participantId: string, data: UpdateParticipantData) => {
+    const participantRef = doc(db, PARTICIPANTS_COLLECTION, participantId);
+    try {
+      await updateDoc(participantRef, data);
+      toast({
+        title: "Participant Updated",
+        description: "Participant information has been saved.",
+      });
+    } catch (error) {
+      console.error("Error updating participant: ", error);
+      toast({
+        variant: "destructive",
+        title: "Update Error",
+        description: "Could not update participant data.",
+      });
+    }
+  };
   
-  addParticipant: (participantData) => {
-    idCounter++;
-    const newId = `P${String(idCounter).padStart(3, '0')}`;
-    const newParticipant: Participant = {
-      ...participantData,
-      id: newId,
-      scores: {},
-    };
-    set((state) => ({
-      participants: [...state.participants, newParticipant],
-    }));
-    return newId;
-  },
+  const updateScore = async (stationKey: StationKey, participantId: string, score: number) => {
+      const participantRef = doc(db, PARTICIPANTS_COLLECTION, participantId);
+      const scoreField = `scores.${stationKey}`;
+      const station = stations[stationKey];
+      const participant = participants.find(p => p.id.toUpperCase() === participantId.toUpperCase());
+      
+      try {
+          await updateDoc(participantRef, { [scoreField]: score });
+           toast({
+            title: `Score Submitted: ${station.name}`,
+            description: `Participant ${participant?.name ?? participantId} scored ${score} ${station.unit}.`,
+        });
+      } catch (error) {
+          console.error("Error updating score: ", error);
+          toast({
+              variant: "destructive",
+              title: "Update Error",
+              description: "Could not update score.",
+          });
+      }
+  };
 
-  updateScore: (stationKey, participantId, score) => {
-    set((state) => ({
-      participants: state.participants.map((p) =>
-        p.id.toUpperCase() === participantId.toUpperCase()
-          ? { ...p, scores: { ...p.scores, [stationKey]: score } }
-          : p
-      ),
-    }));
-  },
+  const deleteParticipant = async (participantId: string) => {
+    const participantRef = doc(db, PARTICIPANTS_COLLECTION, participantId);
+    try {
+      await deleteDoc(participantRef);
+      toast({
+        title: "Participant Deleted",
+        description: "The participant has been successfully removed.",
+      });
+    } catch (error) {
+      console.error("Error deleting participant: ", error);
+      toast({
+        variant: "destructive",
+        title: "Delete Error",
+        description: "Could not delete participant.",
+      });
+    }
+  };
+  
+  const getParticipant = (id: string): Participant | undefined => {
+      return participants.find(p => p.id.toUpperCase() === id.toUpperCase());
+  };
 
-  getParticipant: (id: string) => {
-    return get().participants.find(p => p.id.toUpperCase() === id.toUpperCase());
-  },
-
-  updateParticipant: (participantId, data) => {
-    set((state) => ({
-      participants: state.participants.map((p) =>
-        p.id === participantId
-          ? { ...p, ...data, scores: { ...p.scores, ...data.scores } }
-          : p
-      ),
-    }));
-  },
-
-  deleteParticipant: (participantId) => {
-    set((state) => ({
-      participants: state.participants.filter((p) => p.id !== participantId),
-    }));
-  },
-}));
+  return { participants, loading, addParticipant, updateParticipant, deleteParticipant, updateScore, getParticipant };
+}

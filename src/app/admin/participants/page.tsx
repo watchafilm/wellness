@@ -36,7 +36,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Edit, Trash2 } from 'lucide-react';
+import { Edit, Trash2, Loader2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
 const ageRanges = ["20-29 ปี", "30-39 ปี", "40-49 ปี", "50-59 ปี", "60-69 ปี", "70+ ปี"] as const;
@@ -61,8 +61,7 @@ const formSchema = z.object({
 });
 
 export default function ParticipantsPage() {
-  const { participants, updateParticipant, deleteParticipant } = useParticipants();
-  const { toast } = useToast();
+  const { participants, updateParticipant, deleteParticipant, loading } = useParticipants();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedParticipant, setSelectedParticipant] = useState<Participant | null>(null);
 
@@ -105,7 +104,6 @@ export default function ParticipantsPage() {
 
   const handleDelete = (participantId: string) => {
     deleteParticipant(participantId);
-    toast({ title: "Participant Deleted", description: "The participant has been successfully removed." });
   };
   
   function onSubmit(values: z.infer<typeof formSchema>) {
@@ -121,7 +119,6 @@ export default function ParticipantsPage() {
       scores: values.scores,
     });
     
-    toast({ title: "Participant Updated", description: "Participant information has been saved." });
     setIsEditDialogOpen(false);
     setSelectedParticipant(null);
   }
@@ -134,62 +131,68 @@ export default function ParticipantsPage() {
           <CardDescription>A list of all registered participants in the event.</CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>ID</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Age Range</TableHead>
-                <TableHead>Gender</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {participants.map((p) => (
-                <TableRow key={p.id}>
-                  <TableCell className="font-mono">{p.id}</TableCell>
-                  <TableCell className="font-medium">{p.name}</TableCell>
-                  <TableCell>{p.ageRange}</TableCell>
-                  <TableCell className="capitalize">{p.gender}</TableCell>
-                  <TableCell>{p.phone}</TableCell>
-                  <TableCell>{p.email}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button variant="ghost" size="icon" onClick={() => handleEditClick(p)}>
-                        <Edit className="h-4 w-4" />
-                        <span className="sr-only">Edit</span>
-                      </Button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                             <span className="sr-only">Delete</span>
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              This action cannot be undone. This will permanently delete the participant
-                              and all their associated scores.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleDelete(p.id)} className="bg-destructive hover:bg-destructive/90">
-                              Delete
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  </TableCell>
+          {loading ? (
+            <div className="flex h-64 items-center justify-center">
+              <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>ID</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Age Range</TableHead>
+                  <TableHead>Gender</TableHead>
+                  <TableHead>Phone</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {participants.map((p) => (
+                  <TableRow key={p.id}>
+                    <TableCell className="font-mono">{p.id}</TableCell>
+                    <TableCell className="font-medium">{p.name}</TableCell>
+                    <TableCell>{p.ageRange}</TableCell>
+                    <TableCell className="capitalize">{p.gender}</TableCell>
+                    <TableCell>{p.phone}</TableCell>
+                    <TableCell>{p.email}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button variant="ghost" size="icon" onClick={() => handleEditClick(p)}>
+                          <Edit className="h-4 w-4" />
+                          <span className="sr-only">Edit</span>
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                              <span className="sr-only">Delete</span>
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This action cannot be undone. This will permanently delete the participant
+                                and all their associated scores.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDelete(p.id)} className="bg-destructive hover:bg-destructive/90">
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
 
