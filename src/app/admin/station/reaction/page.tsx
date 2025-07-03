@@ -67,24 +67,16 @@ const CustomChartLabel = ({ cx, cy, payload }: any) => {
 
     return (
         <g transform={`translate(${cx},${cy})`}>
-            {/* Position the label to the right and slightly above the dot */}
-            <foreignObject x={15} y={-50} width={130} height={70}>
-                <div
-                    className="w-full h-full flex items-center"
-                    xmlns="http://www.w3.org/1999/xhtml"
-                >
-                    <div className="p-2 bg-card/90 backdrop-blur-sm border rounded-lg shadow-lg text-left w-full">
-                        <p className="font-bold text-sm text-primary whitespace-nowrap truncate">{name}</p>
-                        <p className="font-semibold text-lg leading-tight">
-                            {points} <span className="text-xs font-medium">pts</span>
-                            <span className="text-xs text-muted-foreground font-normal ml-1">({level})</span>
-                        </p>
-                        <p className="text-xs text-muted-foreground -mt-1">
-                            {time.toFixed(0)} ms
-                        </p>
-                    </div>
-                </div>
-            </foreignObject>
+            <rect x="-65" y="-60" width="130" height="55" rx="8" fill="hsla(var(--card), 0.95)" stroke="hsl(var(--border))" />
+            <text x="0" y="-42" textAnchor="middle" dominantBaseline="middle" fontSize="14" fontWeight="bold" fill="hsl(var(--primary))">
+                {name}
+            </text>
+            <text x="0" y="-25" textAnchor="middle" dominantBaseline="middle" fontSize="12" fontWeight="600" fill="hsl(var(--foreground))">
+                {points} pts ({level})
+            </text>
+            <text x="0" y="-10" textAnchor="middle" dominantBaseline="middle" fontSize="11" fill="hsl(var(--muted-foreground))">
+                {time.toFixed(0)} ms
+            </text>
         </g>
     );
 };
@@ -176,7 +168,7 @@ export default function ReactionStationPage() {
                 </CardHeader>
                 <CardContent className="p-4 sm:p-6 pt-0 h-[500px]">
                     <ResponsiveContainer width="100%" height="100%">
-                        <ComposedChart margin={{ top: 60, right: 20, left: 10, bottom: 20 }}>
+                        <ComposedChart margin={{ top: 70, right: 20, left: 10, bottom: 20 }}>
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis 
                                 type="number" 
@@ -201,6 +193,7 @@ export default function ReactionStationPage() {
                             {/* This scatter plot only shows the most recent submission */}
                             {highlightedPoint && (
                                 <Scatter
+                                    name="Last score"
                                     dataKey="time"
                                     data={[highlightedPoint]}
                                     fill="hsl(var(--accent))"
