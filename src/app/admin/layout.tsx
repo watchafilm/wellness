@@ -8,7 +8,7 @@ import Image from 'next/image';
 import { useToast } from "@/hooks/use-toast";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { stations } from '@/lib/stations';
 import { LayoutDashboard, LogOut, Menu, BarChart2, Users, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -138,6 +138,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                         </Button>
                     </SheetTrigger>
                     <SheetContent side="left" className="flex flex-col p-0 bg-card w-[240px] sm:w-[280px]">
+                        <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+                        <SheetDescription className="sr-only">A list of navigation links and actions for the admin dashboard.</SheetDescription>
                         <NavContent />
                     </SheetContent>
                 </Sheet>
