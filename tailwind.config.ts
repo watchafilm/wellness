@@ -98,11 +98,24 @@ export default {
             transform: 'scale(1.02)',
           },
         },
+        'station-highlight-glow': {
+          '0%, 100%': {
+            boxShadow: '0 0 8px hsl(var(--accent) / 0.5), 0 0 16px hsl(var(--accent) / 0.4)',
+            transform: 'scale(1.05)',
+            borderColor: 'hsl(var(--accent))',
+          },
+          '50%': {
+            boxShadow: '0 0 24px hsl(var(--accent) / 0.8), 0 0 48px hsl(var(--accent) / 0.7)',
+            transform: 'scale(1.1)',
+            borderColor: 'hsl(var(--accent) / 0.7)',
+          },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'rank-one-glow': 'rank-one-glow 3s ease-in-out infinite',
+        'station-highlight-glow': 'station-highlight-glow 2.5s ease-in-out infinite',
       },
     },
   },
