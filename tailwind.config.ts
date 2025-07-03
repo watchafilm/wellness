@@ -98,6 +98,14 @@ export default {
             transform: 'scale(1.05)',
           },
         },
+        'highlight-glow': {
+          '0%, 100%': {
+            boxShadow: 'inset 0 0 6px hsl(var(--primary)), 0 0 6px hsl(var(--primary))',
+          },
+          '50%': {
+            boxShadow: 'inset 0 0 12px hsl(var(--primary)), 0 0 12px hsl(var(--primary))',
+          },
+        },
         'reveal-x': {
           'from': { transform: 'scaleX(0)' },
           'to': { transform: 'scaleX(1)' },
@@ -119,6 +127,7 @@ export default {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'rank-one-glow': 'rank-one-glow 4s ease-in-out infinite',
+        'highlight-glow': 'highlight-glow 3s ease-in-out infinite alternate',
         'reveal-x': 'reveal-x 0.5s ease-out forwards',
         'reveal-y': 'reveal-y 0.5s ease-out 0.5s forwards',
         'pop-in': 'pop-in 0.3s ease-out 1s forwards',
