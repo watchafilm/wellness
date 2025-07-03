@@ -1,6 +1,6 @@
 
 export const scoreHeadings = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10];
-export const ageGroupRows = ['16-20', '21-25', '26-30', '31-35', '36-40', '41-45', '46-50', '51-55', '56-60', '61-65', '66-70', '71-75', '76-80', '81-85', '>85'];
+export const ageGroupRows = ['26-30', '36-40', '46-50', '56-60', '66-70', '76-80'];
 
 // Zone definition: For a given score, what is the zone number (1-4)?
 // 1: Red (Poor), 2: Yellow (Average), 3: Green (Good), 4: Blue (Excellent)

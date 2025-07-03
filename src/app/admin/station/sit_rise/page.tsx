@@ -27,6 +27,15 @@ const zoneColorClasses: { [key: number]: string } = {
     4: 'bg-blue-300/60 dark:bg-blue-700/60',
 };
 
+const visualAgeToDisplayAge: { [key: string]: string } = {
+    '26-30': '20-29',
+    '36-40': '30-39',
+    '46-50': '40-49',
+    '56-60': '50-59',
+    '66-70': '60-69',
+    '76-80': '70+',
+};
+
 function BenchmarkTable({ gender, highlightInfo }: {
     gender: 'male' | 'female';
     highlightInfo: { ageRange: string; score: number; } | null;
@@ -53,7 +62,7 @@ function BenchmarkTable({ gender, highlightInfo }: {
                         return (
                             <TableRow key={ageGroup} className="hover:bg-transparent">
                                 <TableCell className="sticky left-0 bg-card z-10 text-center font-semibold p-2 border-r">
-                                    {ageGroup}
+                                    {visualAgeToDisplayAge[ageGroup] || ageGroup}
                                 </TableCell>
                                 {scoreHeadings.map(score => {
                                     const zone = getSitRiseZone(gender, ageGroup, score);
@@ -121,7 +130,8 @@ export default function SitRiseVisualStationPage() {
         setHighlightInfo({ ageRange: participant.ageRange, score });
         setActiveTab(participant.gender);
 
-        const zone = getSitRiseZone(participant.gender, mapAppAgeToVisualAge(participant.ageRange), score);
+        const visualAgeGroup = mapAppAgeToVisualAge(participant.ageRange);
+        const zone = getSitRiseZone(participant.gender, visualAgeGroup, score);
         const zoneText = { 4: 'Excellent', 3: 'Good', 2: 'Average', 1: 'Poor' }[zone];
 
         toast({
