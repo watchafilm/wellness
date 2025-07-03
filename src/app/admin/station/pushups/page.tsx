@@ -48,7 +48,7 @@ function BenchmarkTable({ gender, highlightInfo }: {
                             <TableRow key={points}>
                                 <TableCell className={cn(
                                     "font-extrabold text-lg text-center px-2 transition-all duration-500",
-                                    isRowHighlighted && 'bg-accent/30 dark:bg-accent/30 animate-rank-one-glow relative z-10 rounded-lg'
+                                    isRowHighlighted && 'scale-150 bg-accent/30 dark:bg-accent/30 animate-rank-one-glow relative z-10 rounded-lg'
                                 )}>{points}</TableCell>
                                 <TableCell className="font-semibold px-2">{level}</TableCell>
                                 {ageGroups.map(ageKey => {
@@ -58,14 +58,14 @@ function BenchmarkTable({ gender, highlightInfo }: {
                                         ageGroupMapping[highlightInfo.ageRange] === ageKey;
 
                                     const cellClasses = isHighlighted 
-                                        ? 'bg-accent/30 dark:bg-accent/30 animate-rank-one-glow relative z-10 rounded-lg' 
+                                        ? 'scale-150 bg-accent/30 dark:bg-accent/30 animate-rank-one-glow relative z-10 rounded-lg' 
                                         : '';
                                     
                                     const benchmarksForAge = pushupsBenchmarkTextData[gender][ageKey as keyof typeof pushupsBenchmarkTextData['male']];
                                     const reps = benchmarksForAge[points as keyof typeof benchmarksForAge];
 
                                     return (
-                                        <TableCell key={ageKey} className={cn("text-center font-mono px-2 transition-all duration-300", cellClasses)}>
+                                        <TableCell key={ageKey} className={cn("text-center font-mono px-2 transition-all duration-500", cellClasses)}>
                                             {reps}
                                         </TableCell>
                                     );
