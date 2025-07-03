@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from 'react';
@@ -42,10 +41,11 @@ function BenchmarkTable({ gender, highlightInfo }: {
 }) {
     const highlightedRowAgeGroup = highlightInfo ? mapAppAgeToVisualAge(highlightInfo.ageRange) : null;
     const highlightedScore = highlightInfo ? highlightInfo.score : null;
+    const animationKey = highlightInfo ? `${highlightInfo.ageRange}-${highlightInfo.score}` : 'no-highlight';
 
     return (
         <div className="overflow-x-auto border rounded-lg">
-            <Table className="min-w-full border-collapse">
+            <Table key={animationKey} className="min-w-full border-collapse">
                 <TableHeader>
                     <TableRow className="bg-muted/50 hover:bg-muted/50">
                         <TableHead className="sticky left-0 bg-muted/50 z-10 w-24 min-w-24 text-center font-bold px-2 py-3">Age (Yrs)</TableHead>
@@ -73,13 +73,21 @@ function BenchmarkTable({ gender, highlightInfo }: {
                                         <TableCell
                                             key={score}
                                             className={cn(
-                                                "text-center p-0 h-10 w-16 min-w-16 transition-all duration-500",
+                                                "text-center p-0 h-10 w-16 min-w-16 relative",
                                                 "border-l border-white/20",
-                                                (isRowHighlighted || isColHighlighted) && !isCellHighlighted && "bg-accent/20",
-                                                isCellHighlighted ? "relative z-20 border-2 animate-station-highlight-glow" : zoneColorClasses[zone],
-                                                isCellHighlighted && zoneColorClasses[zone]
+                                                zoneColorClasses[zone]
                                             )}
-                                        />
+                                        >
+                                            {/* Highlighter Divs overlay the base color */}
+                                            {isRowHighlighted && <div className="absolute inset-0 bg-accent/20 animate-reveal-x origin-left" />}
+                                            {isColHighlighted && <div className="absolute inset-0 bg-accent/20 animate-reveal-y origin-top" />}
+                                            {isCellHighlighted && (
+                                                <div className={cn(
+                                                    "absolute inset-0 animate-pop-in border-2 border-accent",
+                                                    zoneColorClasses[zone]
+                                                )} />
+                                            )}
+                                        </TableCell>
                                     );
                                 })}
                             </TableRow>
