@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useMemo } from 'react';
@@ -19,7 +20,6 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  ReferenceDot,
 } from 'recharts';
 
 const ageRangeToMidpoint = (ageRange: string): number => {
@@ -32,7 +32,6 @@ const ageRangeToMidpoint = (ageRange: string): number => {
 
 const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
-        // payload can come from Scatter or Line, handle both
         const data = payload[0].payload;
         if (data.id) { // This is a participant data point
             return (
@@ -47,6 +46,21 @@ const CustomTooltip = ({ active, payload }: any) => {
     }
     return null;
 };
+
+// A custom dot for the scatter chart with a pulsing animation
+const PulsingDot = (props: any) => {
+  const { cx, cy, fill } = props;
+  if (isNaN(cx) || isNaN(cy)) { return null; }
+  return (
+    // We use a group to apply the animation, so it doesn't get overwritten by recharts props
+    <g>
+      <circle cx={cx} cy={cy} r={8} fill={fill} stroke="white" strokeWidth={2}>
+        <animate attributeName="r" from="8" to="12" dur="1s" repeatCount="indefinite" />
+      </circle>
+    </g>
+  );
+};
+
 
 export default function ReactionStationPage() {
     const { participants, updateScore } = useParticipants();
@@ -89,34 +103,13 @@ export default function ReactionStationPage() {
         pIdInput?.focus();
     };
 
-    const chartData = useMemo(() => {
-        const maleData = participants
-            .filter(p => p.gender === 'male' && p.scores.reaction !== undefined)
-            .map(p => ({
-                age: ageRangeToMidpoint(p.ageRange),
-                time: p.scores.reaction! * 1000,
-                name: p.name,
-                id: p.id,
-            }));
-
-        const femaleData = participants
-            .filter(p => p.gender === 'female' && p.scores.reaction !== undefined)
-            .map(p => ({
-                age: ageRangeToMidpoint(p.ageRange),
-                time: p.scores.reaction! * 1000,
-                name: p.name,
-                id: p.id,
-            }));
-        
-        return { maleData, femaleData };
-    }, [participants]);
-
     const highlightedPoint = useMemo(() => {
         if (!lastSubmission) return null;
         return {
             age: ageRangeToMidpoint(lastSubmission.participant.ageRange),
             time: lastSubmission.score * 1000,
             name: lastSubmission.participant.name,
+            id: lastSubmission.participant.id,
         };
     }, [lastSubmission]);
 
@@ -132,7 +125,7 @@ export default function ReactionStationPage() {
                         <CardDescription className="mt-2">
                            {lastSubmission
                                 ? `Highlighting result for ${lastSubmission.participant.name}.`
-                                : "Visualizing all participant reaction times."}
+                                : "Visualizing participant reaction time. Enter a score to see the point on the chart."}
                         </CardDescription>
                     </div>
                     
@@ -167,26 +160,21 @@ export default function ReactionStationPage() {
                                 domain={[250, 550]}
                                 label={{ value: 'Reaction Time (ms)', angle: -90, position: 'insideLeft' }}
                             />
-                            <Tooltip content={<CustomTooltip />} />
+                            <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: '3 3' }} />
                             <Legend verticalAlign="top" align="right" />
                             
                             <Line data={reactionTrendData} type="monotone" dataKey="male" stroke="#3b82f6" strokeWidth={3} dot={false} name="Male (Average)" activeDot={false} />
                             <Line data={reactionTrendData} type="monotone" dataKey="female" stroke="#ec4899" strokeWidth={3} dot={false} name="Female (Average)" activeDot={false} />
                             
-                            <Scatter name="Male" data={chartData.maleData} dataKey="time" fill="#3b82f6" fillOpacity={0.6} />
-                            <Scatter name="Female" data={chartData.femaleData} dataKey="time" fill="#ec4899" fillOpacity={0.6} />
-                            
+                            {/* This scatter plot only shows the most recent submission */}
                             {highlightedPoint && (
-                                <ReferenceDot 
-                                    x={highlightedPoint.age} 
-                                    y={highlightedPoint.time} 
-                                    r={8} 
-                                    fill="hsl(var(--accent))" 
-                                    stroke="white" 
-                                    strokeWidth={2}
-                                    ifOverflow="extendDomain" >
-                                    <animate attributeName="r" from="8" to="12" dur="1s" repeatCount="indefinite" />
-                                </ReferenceDot>
+                                <Scatter
+                                    dataKey="time"
+                                    data={[highlightedPoint]}
+                                    fill="hsl(var(--accent))"
+                                    shape={<PulsingDot />}
+                                    isAnimationActive={false}
+                                />
                             )}
                         </ComposedChart>
                     </ResponsiveContainer>
@@ -195,3 +183,4 @@ export default function ReactionStationPage() {
         </div>
     );
 }
+
