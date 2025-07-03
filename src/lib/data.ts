@@ -21,13 +21,16 @@ const mockParticipantsData: Participant[] = [
     { id: 'P003', name: 'Mike Johnson', ageRange: "40-49 ปี", gender: 'male', phone: '0812345680', email: 'mike.j@example.com', scores: { pushups: 18, sit_rise: 2, sit_reach: 15, one_leg: 20, reaction: 0.4, wh_ratio: 0.52, grip: 60 }},
 ];
 
-type EditableParticipantData = Omit<Participant, 'id' | 'scores'>;
+type NewParticipantData = Omit<Participant, 'id' | 'scores'>;
+type UpdateParticipantData = Partial<Omit<Participant, 'id'>>;
+
+
 interface ParticipantState {
   participants: Participant[];
-  addParticipant: (participant: EditableParticipantData) => string;
+  addParticipant: (participant: NewParticipantData) => string;
   updateScore: (stationKey: StationKey, participantId: string, score: number) => void;
   getParticipant: (id: string) => Participant | undefined;
-  updateParticipant: (participantId: string, data: EditableParticipantData) => void;
+  updateParticipant: (participantId: string, data: UpdateParticipantData) => void;
   deleteParticipant: (participantId: string) => void;
 }
 
@@ -68,7 +71,9 @@ export const useParticipants = create<ParticipantState>((set, get) => ({
   updateParticipant: (participantId, data) => {
     set((state) => ({
       participants: state.participants.map((p) =>
-        p.id === participantId ? { ...p, ...data } : p
+        p.id === participantId
+          ? { ...p, ...data, scores: { ...p.scores, ...data.scores } }
+          : p
       ),
     }));
   },
