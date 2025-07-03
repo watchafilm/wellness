@@ -21,11 +21,14 @@ const mockParticipantsData: Participant[] = [
     { id: 'P003', name: 'Mike Johnson', ageRange: "40-49 ปี", gender: 'male', phone: '0812345680', email: 'mike.j@example.com', scores: { pushups: 18, sit_rise: 2, sit_reach: 15, one_leg: 20, reaction: 0.4, wh_ratio: 0.52, grip: 60 }},
 ];
 
+type EditableParticipantData = Omit<Participant, 'id' | 'scores'>;
 interface ParticipantState {
   participants: Participant[];
-  addParticipant: (participant: Omit<Participant, 'id' | 'scores'>) => string;
+  addParticipant: (participant: EditableParticipantData) => string;
   updateScore: (stationKey: StationKey, participantId: string, score: number) => void;
   getParticipant: (id: string) => Participant | undefined;
+  updateParticipant: (participantId: string, data: EditableParticipantData) => void;
+  deleteParticipant: (participantId: string) => void;
 }
 
 // In a real app, you'd start with a higher number or fetch the last ID from a DB
@@ -60,5 +63,19 @@ export const useParticipants = create<ParticipantState>((set, get) => ({
 
   getParticipant: (id: string) => {
     return get().participants.find(p => p.id.toUpperCase() === id.toUpperCase());
-  }
+  },
+
+  updateParticipant: (participantId, data) => {
+    set((state) => ({
+      participants: state.participants.map((p) =>
+        p.id === participantId ? { ...p, ...data } : p
+      ),
+    }));
+  },
+
+  deleteParticipant: (participantId) => {
+    set((state) => ({
+      participants: state.participants.filter((p) => p.id !== participantId),
+    }));
+  },
 }));
