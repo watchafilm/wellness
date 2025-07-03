@@ -146,11 +146,21 @@ export default function ReactionStationPage() {
                             <Timer className="h-8 w-8 text-primary" />
                             Reaction Time vs. Age
                         </CardTitle>
-                        <CardDescription className="mt-2">
-                           {lastSubmission
-                                ? `Highlighting: ${lastSubmission.participant.name} scored ${lastSubmission.result.points} points (${lastSubmission.result.label}).`
-                                : "Visualizing participant reaction time. Enter a score to see the point on the chart."}
-                        </CardDescription>
+                        {lastSubmission ? (
+                            <div className="mt-2 text-left">
+                                <p className="text-sm text-muted-foreground">
+                                    Result for <span className="font-semibold text-foreground">{lastSubmission.participant.name}</span>:
+                                </p>
+                                <div className="flex items-baseline gap-x-4 mt-1">
+                                    <p className="text-3xl font-bold text-primary">{lastSubmission.result.points} <span className="text-base font-medium">Points</span></p>
+                                    <p className="text-xl font-semibold text-accent">{lastSubmission.result.label}</p>
+                                </div>
+                            </div>
+                        ) : (
+                            <CardDescription className="mt-2">
+                                Visualizing participant reaction time. Enter a score to see the point on the chart.
+                            </CardDescription>
+                        )}
                     </div>
                     
                     <form onSubmit={handleSubmit} className="w-full max-w-[220px] space-y-2">
