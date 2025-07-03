@@ -1,18 +1,18 @@
 
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { stations, StationKey } from "@/lib/stations";
+import { useParticipants } from "@/lib/data";
 
 export default function StationPageClient({ stationKey }: { stationKey: StationKey }) {
-    const router = useRouter();
     const station = stations[stationKey];
     const { toast } = useToast();
+    const { updateScore, getParticipant } = useParticipants();
 
     if (!station) {
         return <p>Station not found.</p>;
@@ -20,17 +20,34 @@ export default function StationPageClient({ stationKey }: { stationKey: StationK
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const formData = new FormData(e.currentTarget);
-        const participantId = formData.get('participantId') as string;
-        const score = Number(formData.get('score'));
+        const form = e.currentTarget;
+        const formData = new FormData(form);
+        const participantId = (formData.get('participantId') as string)?.toUpperCase().trim();
+        const scoreValue = formData.get('score');
+
+        if (!participantId || scoreValue === null) {
+            toast({ variant: "destructive", title: "Error", description: "Participant ID and score are required." });
+            return;
+        }
+        
+        const participant = getParticipant(participantId);
+
+        if (!participant) {
+            toast({ variant: "destructive", title: "Error", description: `Participant ID "${participantId}" not found.` });
+            return;
+        }
+        
+        const score = Number(scoreValue);
+        updateScore(stationKey, participantId, score);
 
         toast({
             title: `Score Submitted: ${station.name}`,
-            description: `Participant ${participantId} scored ${score} ${station.unit}.`,
+            description: `Participant ${participant.name} (${participantId}) scored ${score} ${station.unit}.`,
         });
-        e.currentTarget.reset();
-        // Optional: redirect after submission
-        // router.push('/admin'); 
+        
+        const scoreInput = form.elements.namedItem('score') as HTMLInputElement;
+        if (scoreInput) scoreInput.value = '';
+        scoreInput?.focus();
     };
     
     const Icon = station.icon;
@@ -53,7 +70,7 @@ export default function StationPageClient({ stationKey }: { stationKey: StationK
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div>
                             <Label htmlFor={`participantId-${stationKey}`}>Participant ID</Label>
-                            <Input id={`participantId-${stationKey}`} name="participantId" placeholder="e.g., P004" required className="mt-1" />
+                            <Input id={`participantId-${stationKey}`} name="participantId" placeholder="e.g., P001" required className="mt-1" autoComplete="off" />
                         </div>
                         <div>
                             <Label htmlFor={`score-${stationKey}`}>Score ({station.unit})</Label>

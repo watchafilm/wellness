@@ -1,13 +1,12 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useParticipants } from '@/lib/data';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { mockParticipantsData } from '@/lib/stations';
 
 export default function ParticipantsPage() {
-  const [participants] = useState(mockParticipantsData);
+  const { participants } = useParticipants();
 
   return (
     <Card className="shadow-lg border-none">
@@ -21,8 +20,10 @@ export default function ParticipantsPage() {
             <TableRow>
               <TableHead>ID</TableHead>
               <TableHead>Name</TableHead>
-              <TableHead>Age</TableHead>
-              <TableHead className="text-right">Total Score (Example)</TableHead>
+              <TableHead>Age Range</TableHead>
+              <TableHead>Gender</TableHead>
+              <TableHead>Phone</TableHead>
+              <TableHead>Email</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -30,10 +31,10 @@ export default function ParticipantsPage() {
               <TableRow key={p.id}>
                 <TableCell className="font-mono">{p.id}</TableCell>
                 <TableCell className="font-medium">{p.name}</TableCell>
-                <TableCell>{p.age}</TableCell>
-                <TableCell className="text-right font-medium">
-                  {Object.values(p.scores).reduce((a, b) => a + b, 0).toFixed(2)}
-                </TableCell>
+                <TableCell>{p.ageRange}</TableCell>
+                <TableCell className="capitalize">{p.gender}</TableCell>
+                <TableCell>{p.phone}</TableCell>
+                <TableCell>{p.email}</TableCell>
               </TableRow>
             ))}
           </TableBody>

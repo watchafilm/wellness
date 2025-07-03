@@ -19,6 +19,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useParticipants } from "@/lib/data";
 
 const ageRanges = ["20-29 ปี", "30-39 ปี", "40-49 ปี", "50-59 ปี", "60-69 ปี", "70+ ปี"] as const;
 
@@ -39,6 +40,7 @@ const formSchema = z.object({
 
 export function RegistrationForm() {
   const { toast } = useToast();
+  const { addParticipant } = useParticipants();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -52,11 +54,18 @@ export function RegistrationForm() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+    const newId = addParticipant({
+      name: `${values.firstName} ${values.lastName}`,
+      gender: values.gender,
+      ageRange: values.ageRange,
+      phone: values.phone,
+      email: values.email,
+      lineId: values.lineId,
+    });
     
     toast({
       title: "ลงทะเบียนสำเร็จ!",
-      description: "ข้อมูลของคุณถูกส่งเรียบร้อยแล้ว แล้วพบกันในกิจกรรม!",
+      description: `ยินดีต้อนรับคุณ ${values.firstName}! ID ของคุณคือ ${newId}`,
     });
     
     form.reset();
