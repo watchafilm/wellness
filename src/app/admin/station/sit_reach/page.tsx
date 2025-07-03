@@ -12,9 +12,10 @@ import { Ruler } from 'lucide-react';
 import { 
     sitReachBenchmarkData, 
     calculateSitReachResult, 
+    pointLevels,
+    pointThresholds,
     ageGroupMapping,
     reverseAgeGroupMapping,
-    displayCategories
 } from '@/lib/benchmarks/sit_reach';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from '@/lib/utils';
@@ -22,42 +23,51 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 function BenchmarkTable({ gender, highlightInfo }: { 
     gender: 'male' | 'female';
-    highlightInfo: { ageRange: string; percentile: number; } | null;
+    highlightInfo: { ageRange: string; points: number; } | null;
 }) {
     const ageGroups = Object.keys(sitReachBenchmarkData[gender]);
+    const pointThresholdsSorted = [...pointThresholds].sort((a, b) => b.points - a.points);
 
     return (
         <div className="overflow-x-auto">
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead className="w-[80px] text-center px-2">Percentile</TableHead>
-                        <TableHead className="w-[150px] px-2">Category</TableHead>
+                        <TableHead className="w-[50px] text-center px-2 text-base">Point</TableHead>
+                        <TableHead className="w-[100px] px-2 text-base">Level</TableHead>
                         {ageGroups.map(ageKey => (
                             <TableHead key={ageKey} className="text-center min-w-[80px] px-2 text-sm">{reverseAgeGroupMapping[ageKey]}</TableHead>
                         ))}
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {displayCategories.map((category) => {
-                        const isRowHighlighted = highlightInfo?.percentile === category.percentile;
+                    {pointThresholdsSorted.map((threshold) => {
+                        const { points, percentile } = threshold;
+                        const level = pointLevels[points];
+                        const isRowHighlighted = highlightInfo?.points === points;
+
                         return (
-                            <TableRow key={category.percentile} className={cn(isRowHighlighted && 'bg-accent/30')}>
+                            <TableRow key={points}>
                                 <TableCell className={cn(
-                                    "font-extrabold text-xl text-center px-2 transition-all duration-500",
-                                    isRowHighlighted && 'scale-125 text-primary'
-                                )}>{category.percentile}</TableCell>
-                                <TableCell className="font-semibold px-2">{category.label}</TableCell>
+                                    "font-extrabold text-xl text-center px-2 transition-all duration-1000",
+                                    isRowHighlighted && 'scale-150 bg-accent/30 dark:bg-accent/30 animate-rank-one-glow relative z-10 rounded-lg'
+                                )}>{points}</TableCell>
+                                <TableCell className="font-semibold px-2 text-base">{level}</TableCell>
                                 {ageGroups.map(ageKey => {
-                                    const ageData = sitReachBenchmarkData[gender][ageKey as keyof typeof sitReachBenchmarkData.male];
-                                    const score = ageData[category.percentile as keyof typeof ageData];
-                                    const isCellHighlighted = isRowHighlighted && ageGroupMapping[highlightInfo.ageRange] === ageKey;
+                                    const isHighlighted = 
+                                        isRowHighlighted &&
+                                        highlightInfo &&
+                                        ageGroupMapping[highlightInfo.ageRange] === ageKey;
+
+                                    const cellClasses = isHighlighted 
+                                        ? 'scale-150 bg-accent/30 dark:bg-accent/30 animate-rank-one-glow relative z-10 rounded-lg' 
+                                        : '';
+                                    
+                                    const benchmarksForAge = sitReachBenchmarkData[gender][ageKey as keyof typeof sitReachBenchmarkData.male];
+                                    const score = benchmarksForAge[percentile as keyof typeof benchmarksForAge];
 
                                     return (
-                                        <TableCell key={ageKey} className={cn(
-                                            "text-center font-mono px-2 transition-all duration-500",
-                                            isCellHighlighted && 'font-bold scale-125 text-primary'
-                                        )}>
+                                        <TableCell key={ageKey} className={cn("text-center font-mono px-2 transition-all duration-1000 text-base", cellClasses)}>
                                             {`≥ ${score}`}
                                         </TableCell>
                                     );
@@ -71,10 +81,11 @@ function BenchmarkTable({ gender, highlightInfo }: {
     );
 }
 
+
 export default function SitReachStationPage() {
     const { participants, updateScore } = useParticipants();
     const { toast } = useToast();
-    const [lastSubmission, setLastSubmission] = useState<{ participantId: string; percentile: number } | null>(null);
+    const [lastSubmission, setLastSubmission] = useState<{ participantId: string; points: number } | null>(null);
     const [currentParticipant, setCurrentParticipant] = useState<Participant | null>(null);
     const [activeTab, setActiveTab] = useState<'male' | 'female'>('male');
 
@@ -106,12 +117,12 @@ export default function SitReachStationPage() {
         updateScore('sit_reach', participant.id, score);
         
         setCurrentParticipant(participant);
-        setLastSubmission({ participantId: participant.id, percentile: result.percentile });
+        setLastSubmission({ participantId: participant.id, points: result.points });
         setActiveTab(participant.gender);
 
         toast({
             title: "Score Submitted!",
-            description: `${participant.name} is in the "${result.label}" category (Percentile ${result.percentile}+).`,
+            description: `${participant.name} scored ${score} cm, earning ${result.points} points (${result.label}).`,
         });
         
         form.reset();
@@ -126,12 +137,12 @@ export default function SitReachStationPage() {
                     <div className="flex-1">
                         <CardTitle className="font-headline text-2xl flex items-center gap-3">
                             <Ruler className="h-8 w-8 text-accent" />
-                            Sit and Reach Test
+                            Sit and Reach Benchmark
                         </CardTitle>
                         <CardDescription className="mt-2">
                            {currentParticipant && lastSubmission
-                                ? `Highlighting score for ${currentParticipant.name} (${currentParticipant.ageRange}).`
-                                : "Enter score to see participant's category."}
+                                ? `Highlighting score for ${currentParticipant.name} (${currentParticipant.ageRange}, ${pointLevels[lastSubmission.points]}).`
+                                : "Enter score to see participant's rank."}
                         </CardDescription>
                     </div>
                     
@@ -152,7 +163,7 @@ export default function SitReachStationPage() {
                                 gender="male"
                                 highlightInfo={currentParticipant?.gender === 'male' && lastSubmission ? {
                                     ageRange: currentParticipant.ageRange,
-                                    percentile: lastSubmission.percentile
+                                    points: lastSubmission.points
                                 } : null}
                             />
                         </TabsContent>
@@ -161,7 +172,7 @@ export default function SitReachStationPage() {
                                 gender="female"
                                 highlightInfo={currentParticipant?.gender === 'female' && lastSubmission ? {
                                     ageRange: currentParticipant.ageRange,
-                                    percentile: lastSubmission.percentile
+                                    points: lastSubmission.points
                                 } : null}
                             />
                         </TabsContent>

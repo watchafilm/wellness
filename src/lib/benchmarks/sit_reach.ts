@@ -2,30 +2,16 @@
 // Data extracted from "TABLE 4.17. Fitness Categories for the YMCA Sit-and-Reach Test (in) by Age and Sex"
 // Although the table specifies inches, we are treating the values as cm to maintain consistency with the rest of the application's units.
 
-// Defines the categories and their corresponding percentile scores and points for calculation.
-export const percentileCategories = [
-    { percentile: 90, label: "Well above average", points: 5 },
-    { percentile: 80, label: "Above average", points: 4 },
-    { percentile: 70, label: "Above average", points: 4 },
-    { percentile: 60, label: "Average", points: 3 },
-    { percentile: 50, label: "Average", points: 3 },
-    { percentile: 40, label: "Below average", points: 2 },
-    { percentile: 30, label: "Below average", points: 2 },
-    { percentile: 20, label: "Well below average", points: 1 },
-    { percentile: 10, label: "Well below average", points: 1 },
-];
+export const pointLevels: { [key: number]: string } = {
+    5: 'Excellent',
+    4: 'Good',
+    3: 'Average',
+    2: 'Below Avg',
+    1: 'Poor',
+};
 
-// Defines the categories for display in the UI table. We simplify to show the lower bound of each major category.
-export const displayCategories = [
-    { label: "Well above average", percentile: 90, points: 5 },
-    { label: "Above average", percentile: 70, points: 4 },
-    { label: "Average", percentile: 50, points: 3 },
-    { label: "Below average", percentile: 30, points: 2 },
-    { label: "Well below average", percentile: 10, points: 1 },
-].sort((a, b) => b.percentile - a.percentile);
-
-
-// The raw benchmark data from the table.
+// The raw benchmark data from the table, indexed by percentile.
+// The points are derived by checking which percentile range the score falls into.
 export const sitReachBenchmarkData = {
     male: {
         '18-25': { 90: 22, 80: 20, 70: 19, 60: 18, 50: 17, 40: 15, 30: 14, 20: 13, 10: 11 },
@@ -45,6 +31,15 @@ export const sitReachBenchmarkData = {
     }
 };
 
+// Defines the percentile threshold for each point level.
+export const pointThresholds = [
+    { points: 5, percentile: 90 },
+    { points: 4, percentile: 70 },
+    { points: 3, percentile: 50 },
+    { points: 2, percentile: 30 },
+    { points: 1, percentile: 10 },
+];
+
 // Maps app age ranges to benchmark age ranges.
 export const ageGroupMapping: { [key: string]: string } = {
     "20-29 ปี": "18-25",
@@ -60,34 +55,31 @@ export const reverseAgeGroupMapping = Object.fromEntries(Object.entries(ageGroup
 interface SitReachResult {
     points: number;
     label: string;
-    percentile: number;
 }
 
 /**
- * Calculates the Sit and Reach category based on gender, age, and score.
+ * Calculates the Sit and Reach points based on gender, age, and score.
  * A higher score is better.
- * @returns An object containing the points, label, and matched percentile.
+ * @returns An object containing the points and label.
  */
 export function calculateSitReachResult(gender: 'male' | 'female', ageRange: string, score: number): SitReachResult {
     const ageKey = ageGroupMapping[ageRange] as keyof typeof sitReachBenchmarkData.male;
-    if (!ageKey) return { points: 0, label: 'Poor', percentile: 0 };
+    if (!ageKey) return { points: 0, label: 'N/A' };
     
     const benchmarks = sitReachBenchmarkData[gender][ageKey];
-    if (!benchmarks) return { points: 0, label: 'Poor', percentile: 0 };
+    if (!benchmarks) return { points: 0, label: 'N/A' };
     
-    // Sort categories from highest percentile to lowest to find the first match.
-    const sortedCategories = [...percentileCategories].sort((a, b) => b.percentile - a.percentile);
-
-    for (const category of sortedCategories) {
-        const requiredScore = benchmarks[category.percentile as keyof typeof benchmarks];
+    // Check from highest points to lowest to find the first match.
+    for (const threshold of pointThresholds) {
+        const requiredScore = benchmarks[threshold.percentile as keyof typeof benchmarks];
         if (score >= requiredScore) {
             return {
-                points: category.points,
-                label: category.label,
-                percentile: category.percentile,
+                points: threshold.points,
+                label: pointLevels[threshold.points],
             };
         }
     }
     
-    return { points: 0, label: 'Poor', percentile: 0 };
+    // If score is below all defined percentile thresholds, it's the lowest category.
+    return { points: 1, label: pointLevels[1] };
 }
