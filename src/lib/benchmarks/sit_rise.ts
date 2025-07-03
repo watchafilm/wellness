@@ -34,14 +34,14 @@ const zoneData: { male: GenderZones; female: GenderZones } = {
           { min: 7.5, max: 8, zone: 3 },
           { min: 8.5, max: 10, zone: 4 },
       ],
-      '66-70': [ // 60-69 (Corrected based on logical progression)
+      '66-70': [ // 60-69
           { min: 0, max: 4, zone: 1 },
           { min: 4.5, max: 6.5, zone: 2 },
-          { min: 7.0, max: 8.5, zone: 3 },
-          { min: 9.0, max: 10, zone: 4 },
+          { min: 7, max: 7.5, zone: 3 },
+          { min: 8, max: 10, zone: 4 },
       ],
       '76-80': [ // 70+
-          { min: 0, max: 0, zone: 1 }, // Assuming 0.5 belongs to yellow as the higher group
+          { min: 0, max: 0, zone: 1 }, 
           { min: 0.5, max: 3, zone: 2 },
           { min: 3.5, max: 5.5, zone: 3 },
           { min: 6, max: 10, zone: 4 },
