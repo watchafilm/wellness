@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useMemo, useEffect } from 'react';
@@ -122,21 +123,11 @@ export default function PushupsStationPage() {
         if (scoreInput) scoreInput.value = '';
         scoreInput?.focus();
     };
-
-    useEffect(() => {
-       if (lastSubmission) {
-           const timer = setTimeout(() => {
-               setLastSubmission(null);
-               setCurrentParticipant(null);
-           }, 3500); 
-           return () => clearTimeout(timer);
-       }
-    }, [lastSubmission]);
     
     return (
-         <div className="container mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 py-8">
-            <div className="lg:col-span-1">
-                <Card className="w-full shadow-lg border-none sticky top-8">
+         <div className="container mx-auto flex flex-col items-center gap-8 py-8">
+            <div className="w-full max-w-lg">
+                <Card className="w-full shadow-lg border-none">
                     <CardHeader>
                         <div className="flex items-center gap-4">
                             <div className="p-3 bg-accent/20 rounded-lg">
@@ -164,7 +155,7 @@ export default function PushupsStationPage() {
                 </Card>
             </div>
             
-            <div className="lg:col-span-2">
+            <div className="w-full">
                 <Card className="w-full shadow-lg border-none min-h-[500px]">
                     <CardHeader>
                         <CardTitle className="font-headline text-2xl flex items-center gap-2">
