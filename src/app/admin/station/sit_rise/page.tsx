@@ -73,13 +73,13 @@ function BenchmarkTable({ gender, highlightInfo }: {
                                         <TableCell
                                             key={score}
                                             className={cn(
-                                                "text-center p-0 h-10 w-16 min-w-16 relative",
+                                                "text-center p-0 h-12 w-16 min-w-16 relative",
                                                 "border-l border-white/20",
                                                 zoneColorClasses[zone]
                                             )}
                                         >
-                                            {isRowHighlighted && <div className="absolute inset-0 border-y-2 border-accent bg-accent/10 animate-reveal-x origin-left animate-highlight-glow" />}
-                                            {isColHighlighted && <div className="absolute inset-0 border-x-2 border-accent bg-accent/10 animate-reveal-y origin-top animate-highlight-glow" />}
+                                            {isRowHighlighted && <div className="absolute inset-0 border-y-2 border-accent bg-accent/10 animate-highlight-glow" />}
+                                            {isColHighlighted && <div className="absolute inset-0 border-x-2 border-accent bg-accent/10 animate-highlight-glow" />}
                                             
                                             {isCellHighlighted && (
                                                 <>
