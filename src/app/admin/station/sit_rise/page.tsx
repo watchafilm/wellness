@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from 'react';
@@ -88,7 +87,7 @@ function BenchmarkTable({ gender, highlightInfo }: {
                                                         "absolute inset-0 animate-pop-in border-2 border-accent",
                                                         zoneColorClasses[zone]
                                                     )} />
-                                                    <div className="absolute inset-0 flex items-center justify-center opacity-0 animate-pulsing-score">
+                                                    <div className="absolute inset-0 flex items-center justify-center animate-pulsing-score">
                                                         <span 
                                                             className="relative font-extrabold text-2xl text-destructive-foreground" 
                                                             style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.7)' }}
