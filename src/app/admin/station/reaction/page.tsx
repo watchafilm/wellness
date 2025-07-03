@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useMemo } from 'react';
@@ -138,7 +137,14 @@ export default function ReactionStationPage() {
                     </div>
                     
                     <form onSubmit={handleSubmit} className="w-full max-w-[220px] space-y-2">
-                        <Input name="participantId" placeholder="Participant ID" required autoComplete="off" className="h-9"/>
+                        <Input 
+                            name="participantId" 
+                            placeholder="Participant ID" 
+                            required 
+                            autoComplete="off" 
+                            className="h-9"
+                            onChange={() => setLastSubmission(null)}
+                        />
                         <Input name="score" type="number" step="0.001" min="0" placeholder="Score (s)" required className="h-9"/>
                         <Button type="submit" className="w-full h-9 bg-primary text-primary-foreground hover:bg-primary/90">Submit</Button>
                     </form>
