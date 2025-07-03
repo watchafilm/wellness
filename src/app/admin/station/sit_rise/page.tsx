@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -73,7 +74,7 @@ function BenchmarkTable({ gender, highlightInfo }: {
                                         <TableCell
                                             key={score}
                                             className={cn(
-                                                "text-center p-0 h-12 w-16 min-w-16 relative",
+                                                "text-center p-0 h-14 w-16 min-w-16 relative",
                                                 "border-l border-white/20",
                                                 zoneColorClasses[zone]
                                             )}
