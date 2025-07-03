@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from 'react';
@@ -47,7 +46,7 @@ function BenchmarkTable({ gender, highlightInfo }: {
                         return (
                             <TableRow key={points}>
                                 <TableCell className={cn(
-                                    "font-extrabold text-xl text-center px-2 transition-all duration-500",
+                                    "font-extrabold text-xl text-center px-2 transition-all duration-1000",
                                     isRowHighlighted && 'scale-150 bg-accent/30 dark:bg-accent/30 animate-rank-one-glow relative z-10 rounded-lg'
                                 )}>{points}</TableCell>
                                 <TableCell className="font-semibold px-2 text-base">{level}</TableCell>
@@ -65,7 +64,7 @@ function BenchmarkTable({ gender, highlightInfo }: {
                                     const reps = benchmarksForAge[points as keyof typeof benchmarksForAge];
 
                                     return (
-                                        <TableCell key={ageKey} className={cn("text-center font-mono px-2 transition-all duration-500 text-base", cellClasses)}>
+                                        <TableCell key={ageKey} className={cn("text-center font-mono px-2 transition-all duration-1000 text-base", cellClasses)}>
                                             {reps}
                                         </TableCell>
                                     );

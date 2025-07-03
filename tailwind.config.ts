@@ -95,7 +95,7 @@ export default {
           },
           '50%': {
             boxShadow: '0 0 32px hsl(var(--accent) / 0.9), 0 0 64px hsl(var(--accent) / 0.8)',
-            transform: 'scale(1.25)',
+            transform: 'scale(1.5)',
           },
         },
         'station-highlight-glow': {
@@ -114,7 +114,7 @@ export default {
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
-        'rank-one-glow': 'rank-one-glow 2.5s ease-in-out infinite',
+        'rank-one-glow': 'rank-one-glow 4s ease-in-out infinite',
         'station-highlight-glow': 'station-highlight-glow 2.5s ease-in-out infinite',
       },
     },
