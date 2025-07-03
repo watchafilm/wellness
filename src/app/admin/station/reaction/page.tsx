@@ -61,6 +61,28 @@ const PulsingDot = (props: any) => {
   );
 };
 
+const CustomChartLabel = ({ x, y, payload }: any) => {
+    if (!payload || !payload.payload) return null;
+    const { name, points } = payload.payload;
+
+    return (
+        <g transform={`translate(${x},${y})`}>
+            {/* Using foreignObject to render HTML inside SVG for easier styling */}
+            <foreignObject x={-50} y={-60} width={100} height={50}>
+                 <div 
+                    className="flex flex-col items-center justify-center w-full h-full text-center"
+                    xmlns="http://www.w3.org/1999/xhtml"
+                >
+                    <div className="p-2 bg-card/90 backdrop-blur-sm border rounded-lg shadow-lg">
+                        <p className="font-extrabold text-lg text-primary leading-none">{points} pts</p>
+                        <p className="text-xs text-muted-foreground whitespace-nowrap -mt-0.5">{name}</p>
+                    </div>
+                </div>
+            </foreignObject>
+        </g>
+    );
+};
+
 
 export default function ReactionStationPage() {
     const { participants, updateScore } = useParticipants();
@@ -112,6 +134,7 @@ export default function ReactionStationPage() {
             time: lastSubmission.score * 1000,
             name: lastSubmission.participant.name,
             id: lastSubmission.participant.id,
+            points: lastSubmission.result.points,
         };
     }, [lastSubmission]);
 
@@ -146,7 +169,7 @@ export default function ReactionStationPage() {
                 </CardHeader>
                 <CardContent className="p-4 sm:p-6 pt-0 h-[500px]">
                     <ResponsiveContainer width="100%" height="100%">
-                        <ComposedChart margin={{ top: 5, right: 20, left: 10, bottom: 20 }}>
+                        <ComposedChart margin={{ top: 60, right: 20, left: 10, bottom: 20 }}>
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis 
                                 type="number" 
@@ -176,6 +199,7 @@ export default function ReactionStationPage() {
                                     fill="hsl(var(--accent))"
                                     shape={<PulsingDot />}
                                     isAnimationActive={false}
+                                    label={<CustomChartLabel />}
                                 />
                             )}
                         </ComposedChart>
