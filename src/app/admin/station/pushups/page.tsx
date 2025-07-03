@@ -42,15 +42,20 @@ function BenchmarkTable({ gender, highlightInfo }: {
                 <TableBody>
                     {pointLevelsSorted.map(([points, level]) => {
                         const pointValue = Number(points);
+                        const isRowHighlighted = highlightInfo?.points === pointValue;
+
                         return (
                             <TableRow key={points}>
-                                <TableCell className="font-extrabold text-lg text-center px-2">{points}</TableCell>
+                                <TableCell className={cn(
+                                    "font-extrabold text-lg text-center px-2 transition-all duration-500",
+                                    isRowHighlighted && 'bg-accent/30 dark:bg-accent/30 animate-rank-one-glow relative z-10 rounded-lg'
+                                )}>{points}</TableCell>
                                 <TableCell className="font-semibold px-2">{level}</TableCell>
                                 {ageGroups.map(ageKey => {
                                     const isHighlighted = 
+                                        isRowHighlighted &&
                                         highlightInfo &&
-                                        ageGroupMapping[highlightInfo.ageRange] === ageKey &&
-                                        highlightInfo.points === pointValue;
+                                        ageGroupMapping[highlightInfo.ageRange] === ageKey;
 
                                     const cellClasses = isHighlighted 
                                         ? 'bg-accent/30 dark:bg-accent/30 animate-rank-one-glow relative z-10 rounded-lg' 
