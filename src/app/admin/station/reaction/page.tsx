@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from '@/components/ui/input';
 import { useToast } from "@/hooks/use-toast";
 import { Timer } from 'lucide-react';
-import { reactionTrendData } from '@/lib/benchmarks/reaction';
+import { reactionTrendData, calculateReactionResult } from '@/lib/benchmarks/reaction';
 import {
   ComposedChart,
   Scatter,
@@ -65,7 +65,7 @@ const PulsingDot = (props: any) => {
 export default function ReactionStationPage() {
     const { participants, updateScore } = useParticipants();
     const { toast } = useToast();
-    const [lastSubmission, setLastSubmission] = useState<{ participant: Participant; score: number } | null>(null);
+    const [lastSubmission, setLastSubmission] = useState<{ participant: Participant; score: number; result: { points: number; label: string; } } | null>(null);
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -88,14 +88,16 @@ export default function ReactionStationPage() {
             setLastSubmission(null);
             return;
         }
+        
+        const result = calculateReactionResult(participant.gender, participant.ageRange, score);
 
         updateScore('reaction', participant.id, score);
         const updatedParticipant = { ...participant, scores: { ...participant.scores, reaction: score } };
-        setLastSubmission({ participant: updatedParticipant, score });
+        setLastSubmission({ participant: updatedParticipant, score, result });
 
         toast({
             title: "Score Submitted!",
-            description: `${participant.name} scored ${score}s.`,
+            description: `${participant.name} scored ${score}s, earning ${result.points} points (${result.label}).`,
         });
         
         form.reset();
@@ -124,7 +126,7 @@ export default function ReactionStationPage() {
                         </CardTitle>
                         <CardDescription className="mt-2">
                            {lastSubmission
-                                ? `Highlighting result for ${lastSubmission.participant.name}.`
+                                ? `Highlighting: ${lastSubmission.participant.name} scored ${lastSubmission.result.points} points (${lastSubmission.result.label}).`
                                 : "Visualizing participant reaction time. Enter a score to see the point on the chart."}
                         </CardDescription>
                     </div>
@@ -183,4 +185,3 @@ export default function ReactionStationPage() {
         </div>
     );
 }
-
