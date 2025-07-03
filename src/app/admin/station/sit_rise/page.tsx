@@ -89,7 +89,7 @@ function BenchmarkTable({ gender, highlightInfo }: {
                                                     )} />
                                                     <div className="absolute inset-0 flex items-center justify-center opacity-0 animate-pulsing-score">
                                                         <span 
-                                                            className="relative font-extrabold text-2xl text-accent" 
+                                                            className="relative font-extrabold text-2xl text-destructive-foreground" 
                                                             style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.7)' }}
                                                         >
                                                             {score}
