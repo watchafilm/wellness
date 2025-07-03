@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -52,7 +53,7 @@ function BenchmarkTable({ gender, highlightInfo }: {
                                         highlightInfo.points === pointValue;
 
                                     const cellClasses = isHighlighted 
-                                        ? 'bg-accent/30 dark:bg-accent/30 animate-station-highlight-glow relative z-10 border-2 border-transparent rounded-lg' 
+                                        ? 'bg-accent/30 dark:bg-accent/30 animate-rank-one-glow relative z-10 rounded-lg' 
                                         : '';
                                     
                                     const benchmarksForAge = pushupsBenchmarkTextData[gender][ageKey as keyof typeof pushupsBenchmarkTextData['male']];
