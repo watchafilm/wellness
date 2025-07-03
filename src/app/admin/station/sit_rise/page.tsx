@@ -9,65 +9,66 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from '@/components/ui/input';
 import { useToast } from "@/hooks/use-toast";
 import { PersonStanding } from 'lucide-react';
-import { sitRiseBenchmarkTextData, calculateSitRisePoints, pointLevels } from '@/lib/benchmarks/sit_rise';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+    scoreHeadings,
+    ageGroupRows,
+    getSitRiseZone,
+    mapAppAgeToVisualAge,
+} from '@/lib/benchmarks/sit_rise';
 
-const ageGroupMapping: { [key: string]: string } = {
-    "20-29 ปี": "20-29", "30-39 ปี": "30-39", "40-49 ปี": "40-49",
-    "50-59 ปี": "50-59", "60-69 ปี": "60-69", "70+ ปี": "70+",
+
+const zoneColorClasses: { [key: number]: string } = {
+    1: 'bg-red-200/60 dark:bg-red-900/60',
+    2: 'bg-yellow-200/60 dark:bg-yellow-700/60',
+    3: 'bg-green-300/60 dark:bg-green-800/60',
+    4: 'bg-blue-300/60 dark:bg-blue-700/60',
 };
-const reverseAgeGroupMapping = Object.fromEntries(Object.entries(ageGroupMapping).map(([key, value]) => [value, key]));
 
-function BenchmarkTable({ gender, highlightInfo }: { 
+function BenchmarkTable({ gender, highlightInfo }: {
     gender: 'male' | 'female';
-    highlightInfo: { ageRange: string; points: number; } | null;
+    highlightInfo: { ageRange: string; score: number; } | null;
 }) {
-    const ageGroups = Object.keys(sitRiseBenchmarkTextData[gender]);
-    const pointLevelsSorted = Object.entries(pointLevels).sort((a, b) => Number(b[0]) - Number(a[0]));
+    const highlightedRow = highlightInfo ? mapAppAgeToVisualAge(highlightInfo.ageRange) : null;
+    const highlightedScore = highlightInfo ? highlightInfo.score : null;
 
     return (
-        <div className="overflow-x-auto">
-            <Table>
+        <div className="overflow-x-auto border rounded-lg">
+            <Table className="min-w-full border-collapse">
                 <TableHeader>
-                    <TableRow>
-                        <TableHead className="w-[50px] text-center px-2 text-base">Points</TableHead>
-                        <TableHead className="w-[100px] px-2 text-base">Level</TableHead>
-                        {ageGroups.map(ageKey => (
-                            <TableHead key={ageKey} className="text-center min-w-[80px] px-2 text-sm">{reverseAgeGroupMapping[ageKey]}</TableHead>
+                    <TableRow className="bg-muted/50 hover:bg-muted/50">
+                        <TableHead className="sticky left-0 bg-muted/50 z-10 w-24 min-w-24 text-center font-bold px-2 py-3">Age (Yrs)</TableHead>
+                        {scoreHeadings.map(score => (
+                            <TableHead key={score} className="text-center font-semibold p-2 w-16 min-w-16">
+                                {score.toFixed(1)}
+                            </TableHead>
                         ))}
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {pointLevelsSorted.map(([points, level]) => {
-                        const pointValue = Number(points);
-                        const isRowHighlighted = highlightInfo?.points === pointValue;
-
+                    {ageGroupRows.map(ageGroup => {
+                        const isRowHighlighted = highlightedRow === ageGroup;
                         return (
-                            <TableRow key={points}>
-                                <TableCell className={cn(
-                                    "font-extrabold text-xl text-center px-2 transition-all duration-1000",
-                                    isRowHighlighted && 'scale-150 bg-accent/30 dark:bg-accent/30 animate-rank-one-glow relative z-10 rounded-lg'
-                                )}>{points}</TableCell>
-                                <TableCell className="font-semibold px-2 text-base">{level}</TableCell>
-                                {ageGroups.map(ageKey => {
-                                    const isHighlighted = 
-                                        isRowHighlighted &&
-                                        highlightInfo &&
-                                        ageGroupMapping[highlightInfo.ageRange] === ageKey;
-
-                                    const cellClasses = isHighlighted 
-                                        ? 'scale-150 bg-accent/30 dark:bg-accent/30 animate-rank-one-glow relative z-10 rounded-lg' 
-                                        : '';
+                            <TableRow key={ageGroup} className="hover:bg-transparent">
+                                <TableCell className="sticky left-0 bg-card z-10 text-center font-semibold p-2 border-r">
+                                    {ageGroup}
+                                </TableCell>
+                                {scoreHeadings.map(score => {
+                                    const zone = getSitRiseZone(gender, ageGroup, score);
+                                    const isHighlighted = isRowHighlighted && score === highlightedScore;
                                     
-                                    const benchmarksForAge = sitRiseBenchmarkTextData[gender][ageKey as keyof typeof sitRiseBenchmarkTextData['male']];
-                                    const value = benchmarksForAge[points as keyof typeof benchmarksForAge];
-
                                     return (
-                                        <TableCell key={ageKey} className={cn("text-center font-mono px-2 transition-all duration-1000 text-base", cellClasses)}>
-                                            {value}
-                                        </TableCell>
+                                        <TableCell
+                                            key={score}
+                                            className={cn(
+                                                "text-center p-0 h-10 w-16 min-w-16 transition-all duration-500",
+                                                zoneColorClasses[zone],
+                                                isHighlighted && "ring-4 ring-primary ring-offset-2 ring-offset-background z-20 relative scale-110",
+                                                "border-l border-white/20"
+                                            )}
+                                        />
                                     );
                                 })}
                             </TableRow>
@@ -79,11 +80,10 @@ function BenchmarkTable({ gender, highlightInfo }: {
     );
 }
 
-
-export default function SitRiseStationPage() {
+export default function SitRiseVisualStationPage() {
     const { participants, updateScore } = useParticipants();
     const { toast } = useToast();
-    const [lastSubmission, setLastSubmission] = useState<{ participantId: string; points: number } | null>(null);
+    const [highlightInfo, setHighlightInfo] = useState<{ ageRange: string; score: number; } | null>(null);
     const [currentParticipant, setCurrentParticipant] = useState<Participant | null>(null);
     const [activeTab, setActiveTab] = useState<'male' | 'female'>('male');
 
@@ -95,7 +95,7 @@ export default function SitRiseStationPage() {
         const participantId = (formData.get('participantId') as string)?.toUpperCase().trim();
         const scoreValue = formData.get('score');
         
-        if (!participantId || scoreValue === null) {
+        if (!participantId || scoreValue === null || scoreValue === '') {
             toast({ variant: "destructive", title: "Error", description: "Participant ID and score are required." });
             return;
         }
@@ -106,21 +106,27 @@ export default function SitRiseStationPage() {
         if (!participant) {
             toast({ variant: "destructive", title: "Error", description: `Participant ID "${participantId}" not found.` });
             setCurrentParticipant(null);
-            setLastSubmission(null);
+            setHighlightInfo(null);
+            return;
+        }
+        
+        if (score < 0 || score > 10) {
+            toast({ variant: "destructive", title: "Invalid Score", description: "Score must be between 0 and 10." });
             return;
         }
 
-        const points = calculateSitRisePoints(participant.gender, participant.ageRange, score);
-        
         updateScore('sit_rise', participant.id, score);
         
         setCurrentParticipant(participant);
-        setLastSubmission({ participantId: participant.id, points });
+        setHighlightInfo({ ageRange: participant.ageRange, score });
         setActiveTab(participant.gender);
+
+        const zone = getSitRiseZone(participant.gender, mapAppAgeToVisualAge(participant.ageRange), score);
+        const zoneText = { 4: 'Excellent', 3: 'Good', 2: 'Average', 1: 'Poor' }[zone];
 
         toast({
             title: "Score Submitted!",
-            description: `${participant.name} scored ${score}, earning ${points} points (${pointLevels[points] || 'N/A'}).`,
+            description: `${participant.name} scored ${score}, which is in the ${zoneText} zone.`,
         });
         
         form.reset();
@@ -129,54 +135,52 @@ export default function SitRiseStationPage() {
     };
     
     return (
-        <div className="container mx-auto py-8">
-            <Card className="w-full shadow-lg border-none">
-                <CardHeader className="flex flex-row items-start justify-between gap-4 p-4 sm:p-6">
-                    <div className="flex-1">
-                        <CardTitle className="font-headline text-2xl flex items-center gap-3">
-                            <PersonStanding className="h-8 w-8 text-accent" />
-                            Sit and Rise Benchmark
-                        </CardTitle>
-                        <CardDescription className="mt-2">
-                           {currentParticipant && lastSubmission
-                                ? `Highlighting score for ${currentParticipant.name} (${currentParticipant.ageRange}, ${pointLevels[lastSubmission.points]}).`
-                                : "Enter score to see participant's rank."}
-                        </CardDescription>
+        <div className="container mx-auto py-8 space-y-6">
+             <Card className="w-full shadow-lg border-none">
+                <CardHeader className="flex flex-row items-center justify-between gap-4 p-4 sm:p-6">
+                    <div className="flex items-center gap-4">
+                        <PersonStanding className="h-10 w-10 text-primary" />
+                         <div>
+                            <CardTitle className="font-headline text-3xl">Sit and Rise Test</CardTitle>
+                             <CardDescription className="mt-1">
+                                {currentParticipant
+                                    ? `Showing result for ${currentParticipant.name} (Age: ${currentParticipant.ageRange}, Gender: ${currentParticipant.gender})`
+                                    : "Enter participant details to see their result."}
+                            </CardDescription>
+                        </div>
                     </div>
-                    
-                    <form onSubmit={handleSubmit} className="w-full max-w-[220px] space-y-2">
-                        <Input name="participantId" placeholder="Participant ID" required autoComplete="off" className="h-9"/>
-                        <Input name="score" type="number" step="any" min="0" max="10" placeholder="Score (0-10)" required className="h-9"/>
-                        <Button type="submit" className="w-full h-9 bg-primary text-primary-foreground hover:bg-primary/90">Submit</Button>
+                     <form onSubmit={handleSubmit} className="flex items-end gap-2 w-full max-w-sm">
+                        <div className="flex-1">
+                            <label htmlFor="participantId" className="text-sm font-medium text-muted-foreground">Participant ID</label>
+                            <Input id="participantId" name="participantId" placeholder="P001" required autoComplete="off" className="h-9 mt-1"/>
+                        </div>
+                        <div className="w-28">
+                             <label htmlFor="score" className="text-sm font-medium text-muted-foreground">Score (0-10)</label>
+                            <Input id="score" name="score" type="number" step="0.5" min="0" max="10" placeholder="e.g. 7.5" required className="h-9 mt-1"/>
+                        </div>
+                        <Button type="submit" className="h-9 bg-primary text-primary-foreground hover:bg-primary/90">Submit</Button>
                     </form>
                 </CardHeader>
-                <CardContent className="p-4 sm:p-6 pt-0">
-                    <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'male' | 'female')} className="w-full">
-                        <TabsList className="grid w-full grid-cols-2 mb-4">
-                            <TabsTrigger value="male">Male</TabsTrigger>
-                            <TabsTrigger value="female">Female</TabsTrigger>
-                        </TabsList>
-                        <TabsContent value="male">
-                            <BenchmarkTable 
-                                gender="male"
-                                highlightInfo={currentParticipant?.gender === 'male' && lastSubmission ? {
-                                    ageRange: currentParticipant.ageRange,
-                                    points: lastSubmission.points
-                                } : null}
-                            />
-                        </TabsContent>
-                        <TabsContent value="female">
-                             <BenchmarkTable 
-                                gender="female"
-                                highlightInfo={currentParticipant?.gender === 'female' && lastSubmission ? {
-                                    ageRange: currentParticipant.ageRange,
-                                    points: lastSubmission.points
-                                } : null}
-                            />
-                        </TabsContent>
-                    </Tabs>
-                </CardContent>
             </Card>
+
+            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'male' | 'female')} className="w-full">
+                <TabsList className="grid w-full max-w-xs mx-auto grid-cols-2 mb-4">
+                    <TabsTrigger value="male">Male</TabsTrigger>
+                    <TabsTrigger value="female">Female</TabsTrigger>
+                </TabsList>
+                <TabsContent value="male">
+                    <BenchmarkTable 
+                        gender="male"
+                        highlightInfo={currentParticipant?.gender === 'male' ? highlightInfo : null}
+                    />
+                </TabsContent>
+                <TabsContent value="female">
+                     <BenchmarkTable 
+                        gender="female"
+                        highlightInfo={currentParticipant?.gender === 'female' ? highlightInfo : null}
+                    />
+                </TabsContent>
+            </Tabs>
         </div>
     );
 }

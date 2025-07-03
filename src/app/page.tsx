@@ -22,7 +22,7 @@ export default function Home() {
             <div className="w-60 h-px bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
             
             <h1 className="mt-14 text-4xl md:text-4xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-gray-900 to-gray-700">
-              Biohacking 1: Measurements of Biological Aging
+              Biohacking 1: Fitness Challenge
             </h1>
             <p className="mt-8 max-w-2xl text-xl text-gray-600 leading-relaxed">
               ร่วมทดสอบอายุชีวภาพของร่างกายคุณกับกิจกรรมสุดท้าทายจาก Genfosis
