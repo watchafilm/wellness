@@ -61,27 +61,6 @@ const PulsingDot = (props: any) => {
   );
 };
 
-const CustomChartLabel = ({ cx, cy, payload }: any) => {
-    if (!payload || !payload.name) return null;
-    const { name, points, level, time } = payload;
-
-    return (
-        <g transform={`translate(${cx},${cy})`}>
-            <rect x="-65" y="-60" width="130" height="55" rx="8" fill="hsla(var(--card), 0.95)" stroke="hsl(var(--border))" />
-            <text x="0" y="-42" textAnchor="middle" dominantBaseline="middle" fontSize="14" fontWeight="bold" fill="hsl(var(--primary))">
-                {name}
-            </text>
-            <text x="0" y="-25" textAnchor="middle" dominantBaseline="middle" fontSize="12" fontWeight="600" fill="hsl(var(--foreground))">
-                {points} pts ({level})
-            </text>
-            <text x="0" y="-10" textAnchor="middle" dominantBaseline="middle" fontSize="11" fill="hsl(var(--muted-foreground))">
-                {time.toFixed(0)} ms
-            </text>
-        </g>
-    );
-};
-
-
 export default function ReactionStationPage() {
     const { participants, updateScore } = useParticipants();
     const { toast } = useToast();
@@ -140,45 +119,51 @@ export default function ReactionStationPage() {
     return (
         <div className="container mx-auto py-8">
             <Card className="w-full shadow-lg border-none">
-                <CardHeader className="flex flex-row items-start justify-between gap-4 p-4 sm:p-6">
-                    <div className="flex-1">
-                        <CardTitle className="font-headline text-2xl flex items-center gap-3">
-                            <Timer className="h-8 w-8 text-primary" />
-                            Reaction Time vs. Age
-                        </CardTitle>
+                <CardHeader className="flex flex-col gap-4 p-4 sm:p-6">
+                    <div className="flex flex-row items-start justify-between gap-4">
+                        <div className="flex-1">
+                            <CardTitle className="font-headline text-2xl flex items-center gap-3">
+                                <Timer className="h-8 w-8 text-primary" />
+                                Reaction Time vs. Age
+                            </CardTitle>
+                        </div>
+                        
+                        <form onSubmit={handleSubmit} className="w-full max-w-[220px] space-y-2">
+                            <Input 
+                                name="participantId" 
+                                placeholder="Participant ID" 
+                                required 
+                                autoComplete="off" 
+                                className="h-9"
+                                onChange={() => setLastSubmission(null)}
+                            />
+                            <Input name="score" type="number" step="0.001" min="0" placeholder="Score (s)" required className="h-9"/>
+                            <Button type="submit" className="w-full h-9 bg-primary text-primary-foreground hover:bg-primary/90">Submit</Button>
+                        </form>
+                    </div>
+
+                    {/* Centered Result Section */}
+                    <div className="flex justify-center items-center h-24 text-center">
                         {lastSubmission ? (
-                            <div className="mt-2 text-left">
+                            <div key={lastSubmission.participant.id} className="transition-all duration-500 animate-pop-in">
                                 <p className="text-sm text-muted-foreground">
                                     Result for <span className="font-semibold text-foreground">{lastSubmission.participant.name}</span>:
                                 </p>
-                                <div className="flex items-baseline gap-x-4 mt-1">
-                                    <p className="text-3xl font-bold text-primary">{lastSubmission.result.points} <span className="text-base font-medium">Points</span></p>
-                                    <p className="text-xl font-semibold text-accent">{lastSubmission.result.label}</p>
+                                <div className="flex items-baseline justify-center gap-x-4 mt-2">
+                                    <p className="text-5xl font-bold text-primary">{lastSubmission.result.points} <span className="text-xl font-medium">Points</span></p>
+                                    <p className="text-3xl font-semibold text-accent">{lastSubmission.result.label}</p>
                                 </div>
                             </div>
                         ) : (
-                            <CardDescription className="mt-2">
+                            <CardDescription className="pt-8">
                                 Visualizing participant reaction time. Enter a score to see the point on the chart.
                             </CardDescription>
                         )}
                     </div>
-                    
-                    <form onSubmit={handleSubmit} className="w-full max-w-[220px] space-y-2">
-                        <Input 
-                            name="participantId" 
-                            placeholder="Participant ID" 
-                            required 
-                            autoComplete="off" 
-                            className="h-9"
-                            onChange={() => setLastSubmission(null)}
-                        />
-                        <Input name="score" type="number" step="0.001" min="0" placeholder="Score (s)" required className="h-9"/>
-                        <Button type="submit" className="w-full h-9 bg-primary text-primary-foreground hover:bg-primary/90">Submit</Button>
-                    </form>
                 </CardHeader>
-                <CardContent className="p-4 sm:p-6 pt-0 h-[500px]">
+                <CardContent className="p-4 sm:p-6 pt-0 h-[450px]">
                     <ResponsiveContainer width="100%" height="100%">
-                        <ComposedChart margin={{ top: 70, right: 20, left: 10, bottom: 20 }}>
+                        <ComposedChart margin={{ top: 20, right: 20, left: 10, bottom: 20 }}>
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis 
                                 type="number" 
@@ -209,7 +194,6 @@ export default function ReactionStationPage() {
                                     fill="hsl(var(--accent))"
                                     shape={<PulsingDot />}
                                     isAnimationActive={false}
-                                    label={<CustomChartLabel />}
                                 />
                             )}
                         </ComposedChart>
