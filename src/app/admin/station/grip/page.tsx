@@ -14,6 +14,7 @@ import {
     calculateGripPoints, 
     pointLevels,
     ageGroupMapping,
+    reverseAgeGroupMapping,
     displayAgeGroups
 } from '@/lib/benchmarks/grip';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -35,7 +36,7 @@ function BenchmarkTable({ gender, highlightInfo }: {
                         <TableHead className="w-[50px] text-center px-2 text-base">Point</TableHead>
                         <TableHead className="w-[100px] px-2 text-base">Level</TableHead>
                         {displayAgeGroups.map(ageKey => (
-                            <TableHead key={ageKey} className="text-center min-w-[120px] px-2 text-sm">{ageKey}</TableHead>
+                            <TableHead key={ageKey} className="text-center min-w-[120px] px-2 text-sm">{reverseAgeGroupMapping[ageKey as keyof typeof reverseAgeGroupMapping]}</TableHead>
                         ))}
                     </TableRow>
                 </TableHeader>
@@ -140,7 +141,7 @@ export default function GripStationPage() {
                         </CardTitle>
                         <CardDescription className="mt-2">
                            {currentParticipant && lastSubmission
-                                ? `Highlighting score for ${currentParticipant.name} (${currentParticipant.ageRange}, ${pointLevels[lastSubmission.points]}).`
+                                ? `Highlighting score for ${currentParticipant.name} (${currentParticipant.ageRange}, ${pointLevels[lastSubmission.points as keyof typeof pointLevels]}).`
                                 : "Enter score to see participant's rank."}
                         </CardDescription>
                     </div>
