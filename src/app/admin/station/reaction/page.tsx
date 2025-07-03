@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useMemo } from 'react';
@@ -62,19 +63,25 @@ const PulsingDot = (props: any) => {
 
 const CustomChartLabel = ({ cx, cy, payload }: any) => {
     if (!payload || !payload.name) return null;
-    const { name, points } = payload;
+    const { name, points, level, time } = payload;
 
     return (
         <g transform={`translate(${cx},${cy})`}>
-            {/* Using foreignObject to render HTML inside SVG for easier styling */}
-            <foreignObject x={-50} y={-60} width={100} height={50}>
-                 <div 
-                    className="flex flex-col items-center justify-center w-full h-full text-center"
+            {/* Position the label to the right and slightly above the dot */}
+            <foreignObject x={15} y={-50} width={130} height={70}>
+                <div
+                    className="w-full h-full flex items-center"
                     xmlns="http://www.w3.org/1999/xhtml"
                 >
-                    <div className="p-2 bg-card/90 backdrop-blur-sm border rounded-lg shadow-lg">
-                        <p className="font-extrabold text-lg text-primary leading-none">{points} pts</p>
-                        <p className="text-xs text-muted-foreground whitespace-nowrap -mt-0.5">{name}</p>
+                    <div className="p-2 bg-card/90 backdrop-blur-sm border rounded-lg shadow-lg text-left w-full">
+                        <p className="font-bold text-sm text-primary whitespace-nowrap truncate">{name}</p>
+                        <p className="font-semibold text-lg leading-tight">
+                            {points} <span className="text-xs font-medium">pts</span>
+                            <span className="text-xs text-muted-foreground font-normal ml-1">({level})</span>
+                        </p>
+                        <p className="text-xs text-muted-foreground -mt-1">
+                            {time.toFixed(0)} ms
+                        </p>
                     </div>
                 </div>
             </foreignObject>
@@ -134,6 +141,7 @@ export default function ReactionStationPage() {
             name: lastSubmission.participant.name,
             id: lastSubmission.participant.id,
             points: lastSubmission.result.points,
+            level: lastSubmission.result.label,
         };
     }, [lastSubmission]);
 
