@@ -54,22 +54,17 @@ export function getSitRiseZone(gender: 'male' | 'female', ageGroup: string, scor
     return zone;
 }
 
-// Maps the app's age ranges (e.g., "30-39 ปี") to the visual table's age ranges (e.g., "36-40").
+// Maps the app's age ranges (e.g., "30-39 ปี") to the visual table's age ranges.
 export function mapAppAgeToVisualAge(appAgeRange: string): string {
     const lowerBound = parseInt(appAgeRange.split('-')[0]);
-    if (lowerBound >= 86) return '>85';
-    if (lowerBound >= 81) return '81-85';
-    if (lowerBound >= 76) return '76-80';
-    if (lowerBound >= 71) return '71-75';
-    if (lowerBound >= 66) return '66-70';
-    if (lowerBound >= 61) return '61-65';
-    if (lowerBound >= 56) return '56-60';
-    if (lowerBound >= 51) return '51-55';
-    if (lowerBound >= 46) return '46-50';
-    if (lowerBound >= 41) return '41-45';
-    if (lowerBound >= 36) return '36-40';
-    if (lowerBound >= 31) return '31-35';
-    if (lowerBound >= 26) return '26-30';
-    if (lowerBound >= 21) return '21-25';
-    return '16-20';
+
+    if (lowerBound >= 70) return '76-80';   // 70+   -> 76-80
+    if (lowerBound >= 60) return '66-70';   // 60-69 -> 66-70
+    if (lowerBound >= 50) return '56-60';   // 50-59 -> 56-60
+    if (lowerBound >= 40) return '46-50';   // 40-49 -> 46-50
+    if (lowerBound >= 30) return '36-40';   // 30-39 -> 36-40
+    if (lowerBound >= 20) return '26-30';   // 20-29 -> 26-30
+
+    // Fallback for any other case, though it shouldn't happen with current data.
+    return '26-30';
 }
