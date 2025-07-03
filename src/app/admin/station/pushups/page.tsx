@@ -12,6 +12,7 @@ import { Dumbbell, Trophy } from 'lucide-react';
 import { pushupsBenchmarkTextData, calculatePushupsPoints, pointLevels } from '@/lib/benchmarks/pushups';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from '@/lib/utils';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 
 const ageGroupMapping: { [key: string]: string } = {
@@ -64,6 +65,8 @@ export default function PushupsStationPage() {
     const { toast } = useToast();
     const [lastSubmission, setLastSubmission] = useState<{ participantId: string; points: number } | null>(null);
     const [currentParticipant, setCurrentParticipant] = useState<Participant | null>(null);
+    
+    const reverseAgeGroupMapping = useMemo(() => Object.fromEntries(Object.entries(ageGroupMapping).map(([key, value]) => [value, key])), []);
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -155,22 +158,57 @@ export default function PushupsStationPage() {
                         </CardTitle>
                         <CardDescription>
                             {currentParticipant 
-                                ? `Showing benchmarks for ${currentParticipant.name} (Gender: ${currentParticipant.gender}, Age: ${currentParticipant.ageRange})`
-                                : "Submit a score to view the relevant benchmark table."}
+                                ? `Highlighting score for ${currentParticipant.name} (Gender: ${currentParticipant.gender}, Age: ${currentParticipant.ageRange})`
+                                : "Submit a score to view and highlight the result on the benchmark tables."}
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        {currentParticipant ? (
-                             <BenchmarkTable 
-                                 gender={currentParticipant.gender} 
-                                 ageRange={currentParticipant.ageRange}
-                                 highlightedPoints={currentParticipant.id === lastSubmission?.participantId ? lastSubmission.points : null}
-                             />
-                        ) : (
-                            <div className="text-center text-muted-foreground py-16">
-                                <p>Enter a participant's ID and score to see where they rank.</p>
-                            </div>
-                        )}
+                        <Tabs defaultValue="male" className="w-full">
+                            <TabsList className="grid w-full grid-cols-2 mb-4">
+                                <TabsTrigger value="male">Male</TabsTrigger>
+                                <TabsTrigger value="female">Female</TabsTrigger>
+                            </TabsList>
+                            <TabsContent value="male">
+                                <div className="space-y-6">
+                                    {Object.keys(pushupsBenchmarkTextData.male).map((ageDataKey) => (
+                                        <div key={`male-${ageDataKey}`}>
+                                            <h3 className="text-lg font-semibold mb-2 text-primary">{reverseAgeGroupMapping[ageDataKey]}</h3>
+                                            <BenchmarkTable 
+                                                gender="male"
+                                                ageRange={reverseAgeGroupMapping[ageDataKey]}
+                                                highlightedPoints={
+                                                    currentParticipant?.gender === 'male' && 
+                                                    ageGroupMapping[currentParticipant.ageRange] === ageDataKey &&
+                                                    lastSubmission?.participantId === currentParticipant.id
+                                                    ? lastSubmission.points
+                                                    : null
+                                                }
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            </TabsContent>
+                            <TabsContent value="female">
+                                <div className="space-y-6">
+                                    {Object.keys(pushupsBenchmarkTextData.female).map((ageDataKey) => (
+                                        <div key={`female-${ageDataKey}`}>
+                                            <h3 className="text-lg font-semibold mb-2 text-primary">{reverseAgeGroupMapping[ageDataKey]}</h3>
+                                            <BenchmarkTable 
+                                                gender="female"
+                                                ageRange={reverseAgeGroupMapping[ageDataKey]}
+                                                highlightedPoints={
+                                                    currentParticipant?.gender === 'female' && 
+                                                    ageGroupMapping[currentParticipant.ageRange] === ageDataKey &&
+                                                    lastSubmission?.participantId === currentParticipant.id
+                                                    ? lastSubmission.points
+                                                    : null
+                                                }
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            </TabsContent>
+                        </Tabs>
                     </CardContent>
                 </Card>
             </div>
