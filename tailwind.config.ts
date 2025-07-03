@@ -118,9 +118,11 @@ export default {
           '0%': { transform: 'scale(0.8)', opacity: '0' },
           '100%': { transform: 'scale(1)', opacity: '1' },
         },
-        'scale-in-text': {
+        'pulsing-score': {
           '0%': { transform: 'scale(0.5)', opacity: '0' },
-          '100%': { transform: 'scale(2)', opacity: '1' },
+          '20%': { transform: 'scale(2.2)', opacity: '1' },
+          '35%, 100%': { transform: 'scale(2.0)', opacity: '1' },
+          '65%': { transform: 'scale(2.2)', opacity: '1' },
         },
       },
       animation: {
@@ -131,7 +133,7 @@ export default {
         'reveal-x': 'reveal-x 0.5s ease-out forwards',
         'reveal-y': 'reveal-y 0.5s ease-out 0.5s forwards',
         'pop-in': 'pop-in 0.3s ease-out 1s forwards',
-        'scale-in-text': 'scale-in-text 0.4s ease-out 1.1s forwards',
+        'pulsing-score': 'pulsing-score 2.0s ease-in-out 1.1s infinite',
       },
     },
   },
