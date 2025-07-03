@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useMemo } from 'react';
@@ -61,12 +60,12 @@ const PulsingDot = (props: any) => {
   );
 };
 
-const CustomChartLabel = ({ x, y, payload }: any) => {
-    if (!payload || !payload.payload) return null;
-    const { name, points } = payload.payload;
+const CustomChartLabel = ({ cx, cy, payload }: any) => {
+    if (!payload || !payload.name) return null;
+    const { name, points } = payload;
 
     return (
-        <g transform={`translate(${x},${y})`}>
+        <g transform={`translate(${cx},${cy})`}>
             {/* Using foreignObject to render HTML inside SVG for easier styling */}
             <foreignObject x={-50} y={-60} width={100} height={50}>
                  <div 
