@@ -40,7 +40,7 @@ function BenchmarkTable({ gender, highlightInfo }: {
     gender: 'male' | 'female';
     highlightInfo: { ageRange: string; score: number; } | null;
 }) {
-    const highlightedRow = highlightInfo ? mapAppAgeToVisualAge(highlightInfo.ageRange) : null;
+    const highlightedRowAgeGroup = highlightInfo ? mapAppAgeToVisualAge(highlightInfo.ageRange) : null;
     const highlightedScore = highlightInfo ? highlightInfo.score : null;
 
     return (
@@ -58,7 +58,7 @@ function BenchmarkTable({ gender, highlightInfo }: {
                 </TableHeader>
                 <TableBody>
                     {ageGroupRows.map(ageGroup => {
-                        const isRowHighlighted = highlightedRow === ageGroup;
+                        const isRowHighlighted = highlightedRowAgeGroup === ageGroup;
                         return (
                             <TableRow key={ageGroup} className="hover:bg-transparent">
                                 <TableCell className="sticky left-0 bg-card z-10 text-center font-semibold p-2 border-r">
@@ -66,16 +66,18 @@ function BenchmarkTable({ gender, highlightInfo }: {
                                 </TableCell>
                                 {scoreHeadings.map(score => {
                                     const zone = getSitRiseZone(gender, ageGroup, score);
-                                    const isHighlighted = isRowHighlighted && score === highlightedScore;
+                                    const isColHighlighted = score === highlightedScore;
+                                    const isCellHighlighted = isRowHighlighted && isColHighlighted;
                                     
                                     return (
                                         <TableCell
                                             key={score}
                                             className={cn(
                                                 "text-center p-0 h-10 w-16 min-w-16 transition-all duration-500",
-                                                zoneColorClasses[zone],
-                                                isHighlighted && "ring-4 ring-primary ring-offset-2 ring-offset-background z-20 relative scale-110",
-                                                "border-l border-white/20"
+                                                "border-l border-white/20",
+                                                (isRowHighlighted || isColHighlighted) && !isCellHighlighted && "bg-accent/20",
+                                                isCellHighlighted ? "relative z-20 border-2 animate-station-highlight-glow" : zoneColorClasses[zone],
+                                                isCellHighlighted && zoneColorClasses[zone]
                                             )}
                                         />
                                     );
