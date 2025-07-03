@@ -25,7 +25,7 @@ export default function AdminDashboardPage() {
         </CardDescription>
       </CardHeader>
       <CardContent className="overflow-x-auto p-6 pt-0">
-        <Table className="w-[98%] mx-auto">
+        <Table className="w-[90%] mx-auto">
           <TableHeader>
             <TableRow>
               <TableHead className="w-[80px] text-center font-bold px-2 py-3">อันดับ</TableHead>
