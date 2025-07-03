@@ -94,8 +94,8 @@ export default {
             transform: 'scale(1)',
           },
           '50%': {
-            boxShadow: '0 0 24px hsl(var(--accent) / 0.8), 0 0 48px hsl(var(--accent) / 0.7)',
-            transform: 'scale(1.05)',
+            boxShadow: '0 0 32px hsl(var(--accent) / 0.9), 0 0 64px hsl(var(--accent) / 0.8)',
+            transform: 'scale(1.25)',
           },
         },
         'station-highlight-glow': {
