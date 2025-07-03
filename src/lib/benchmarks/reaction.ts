@@ -48,6 +48,17 @@ const reactionCalculationData = {
     }
 };
 
+export const reactionTrendData = [
+  // Age is the midpoint of the range
+  // Values are midpoints of "Average" category from the source data, in milliseconds
+  { age: 24.5, male: 355, female: 375 },
+  { age: 34.5, male: 360, female: 385 },
+  { age: 44.5, male: 375, female: 400 },
+  { age: 54.5, male: 395, female: 420 },
+  { age: 64.5, male: 415, female: 440 },
+  { age: 75,   male: 435, female: 460 },
+];
+
 export const ageGroupMapping: { [key: string]: string } = {
     "20-29 ปี": "20-29", "30-39 ปี": "30-39", "40-49 ปี": "40-49",
     "50-59 ปี": "50-59", "60-69 ปี": "60-69", "70+ ปี": "70+",

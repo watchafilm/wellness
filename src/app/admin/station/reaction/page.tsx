@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import type { Participant } from '@/lib/data';
 import { useParticipants } from '@/lib/data';
 import { Button } from "@/components/ui/button";
@@ -9,82 +9,50 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from '@/components/ui/input';
 import { useToast } from "@/hooks/use-toast";
 import { Timer } from 'lucide-react';
-import { 
-    reactionBenchmarkTextData, 
-    calculateReactionResult, 
-    pointLevels,
-    ageGroupMapping,
-    reverseAgeGroupMapping,
-} from '@/lib/benchmarks/reaction';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { cn } from '@/lib/utils';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { reactionTrendData } from '@/lib/benchmarks/reaction';
+import {
+  ComposedChart,
+  Scatter,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  ReferenceDot,
+} from 'recharts';
 
-function BenchmarkTable({ gender, highlightInfo }: { 
-    gender: 'male' | 'female';
-    highlightInfo: { ageRange: string; points: number; } | null;
-}) {
-    const ageGroups = Object.keys(reactionBenchmarkTextData[gender]);
-    const pointLevelsSorted = Object.entries(pointLevels).sort((a, b) => Number(b[0]) - Number(a[0]));
+const ageRangeToMidpoint = (ageRange: string): number => {
+    if (ageRange.includes('+')) {
+        return parseInt(ageRange, 10) + 2.5; // "70+ ปี" -> 72.5
+    }
+    const [min, max] = ageRange.replace(' ปี', '').split('-').map(Number);
+    return (min + max) / 2;
+};
 
-    return (
-        <div className="overflow-x-auto">
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead className="w-[50px] text-center px-2 text-base">Point</TableHead>
-                        <TableHead className="w-[100px] px-2 text-base">Level</TableHead>
-                        {ageGroups.map(ageKey => (
-                            <TableHead key={ageKey} className="text-center min-w-[120px] px-2 text-sm">{reverseAgeGroupMapping[ageKey as keyof typeof reverseAgeGroupMapping]}</TableHead>
-                        ))}
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {pointLevelsSorted.map(([points, level]) => {
-                        const pointValue = Number(points);
-                        const isRowHighlighted = highlightInfo?.points === pointValue;
-
-                        return (
-                            <TableRow key={points}>
-                                <TableCell className={cn(
-                                    "font-extrabold text-xl text-center px-2 transition-all duration-1000",
-                                    isRowHighlighted && 'scale-150 bg-accent/30 dark:bg-accent/30 animate-rank-one-glow relative z-10 rounded-lg'
-                                )}>{points}</TableCell>
-                                <TableCell className="font-semibold px-2 text-base">{level}</TableCell>
-                                {ageGroups.map(ageKey => {
-                                    const isHighlighted = 
-                                        isRowHighlighted &&
-                                        highlightInfo &&
-                                        ageGroupMapping[highlightInfo.ageRange] === ageKey;
-
-                                    const cellClasses = isHighlighted 
-                                        ? 'scale-150 bg-accent/30 dark:bg-accent/30 animate-rank-one-glow relative z-10 rounded-lg' 
-                                        : '';
-                                    
-                                    const benchmarksForAge = reactionBenchmarkTextData[gender][ageKey as keyof typeof reactionBenchmarkTextData.male];
-                                    const scoreRange = benchmarksForAge[points as keyof typeof benchmarksForAge];
-
-                                    return (
-                                        <TableCell key={ageKey} className={cn("text-center font-mono px-2 transition-all duration-1000 text-base", cellClasses)}>
-                                            {scoreRange}
-                                        </TableCell>
-                                    );
-                                })}
-                            </TableRow>
-                        );
-                    })}
-                </TableBody>
-            </Table>
-        </div>
-    );
-}
+const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+        // payload can come from Scatter or Line, handle both
+        const data = payload[0].payload;
+        if (data.id) { // This is a participant data point
+            return (
+                <div className="p-2 bg-background/80 border rounded-md shadow-lg">
+                    <p className="font-bold">{data.name}</p>
+                    <p className="text-sm text-muted-foreground">ID: {data.id}</p>
+                    <p className="text-sm">Age: {data.age.toFixed(1)} yrs</p>
+                    <p className="text-sm">Time: {data.time.toFixed(0)} ms</p>
+                </div>
+            );
+        }
+    }
+    return null;
+};
 
 export default function ReactionStationPage() {
     const { participants, updateScore } = useParticipants();
     const { toast } = useToast();
-    const [lastSubmission, setLastSubmission] = useState<{ participantId: string; points: number } | null>(null);
-    const [currentParticipant, setCurrentParticipant] = useState<Participant | null>(null);
-    const [activeTab, setActiveTab] = useState<'male' | 'female'>('male');
+    const [lastSubmission, setLastSubmission] = useState<{ participant: Participant; score: number } | null>(null);
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -104,42 +72,68 @@ export default function ReactionStationPage() {
 
         if (!participant) {
             toast({ variant: "destructive", title: "Error", description: `Participant ID "${participantId}" not found.` });
-            setCurrentParticipant(null);
             setLastSubmission(null);
             return;
         }
 
-        const result = calculateReactionResult(participant.gender, participant.ageRange, score);
-        
         updateScore('reaction', participant.id, score);
-        
-        setCurrentParticipant(participant);
-        setLastSubmission({ participantId: participant.id, points: result.points });
-        setActiveTab(participant.gender);
+        const updatedParticipant = { ...participant, scores: { ...participant.scores, reaction: score } };
+        setLastSubmission({ participant: updatedParticipant, score });
 
         toast({
             title: "Score Submitted!",
-            description: `${participant.name} scored ${score}s, earning ${result.points} points (${result.label}).`,
+            description: `${participant.name} scored ${score}s.`,
         });
         
         form.reset();
         const pIdInput = form.elements.namedItem('participantId') as HTMLInputElement;
         pIdInput?.focus();
     };
-    
+
+    const chartData = useMemo(() => {
+        const maleData = participants
+            .filter(p => p.gender === 'male' && p.scores.reaction !== undefined)
+            .map(p => ({
+                age: ageRangeToMidpoint(p.ageRange),
+                time: p.scores.reaction! * 1000,
+                name: p.name,
+                id: p.id,
+            }));
+
+        const femaleData = participants
+            .filter(p => p.gender === 'female' && p.scores.reaction !== undefined)
+            .map(p => ({
+                age: ageRangeToMidpoint(p.ageRange),
+                time: p.scores.reaction! * 1000,
+                name: p.name,
+                id: p.id,
+            }));
+        
+        return { maleData, femaleData };
+    }, [participants]);
+
+    const highlightedPoint = useMemo(() => {
+        if (!lastSubmission) return null;
+        return {
+            age: ageRangeToMidpoint(lastSubmission.participant.ageRange),
+            time: lastSubmission.score * 1000,
+            name: lastSubmission.participant.name,
+        };
+    }, [lastSubmission]);
+
     return (
         <div className="container mx-auto py-8">
             <Card className="w-full shadow-lg border-none">
                 <CardHeader className="flex flex-row items-start justify-between gap-4 p-4 sm:p-6">
                     <div className="flex-1">
                         <CardTitle className="font-headline text-2xl flex items-center gap-3">
-                            <Timer className="h-8 w-8 text-accent" />
-                            Reaction Time Benchmark
+                            <Timer className="h-8 w-8 text-primary" />
+                            Reaction Time vs. Age
                         </CardTitle>
                         <CardDescription className="mt-2">
-                           {currentParticipant && lastSubmission
-                                ? `Highlighting score for ${currentParticipant.name} (${currentParticipant.ageRange}, ${pointLevels[lastSubmission.points]}).`
-                                : "Enter score to see participant's rank."}
+                           {lastSubmission
+                                ? `Highlighting result for ${lastSubmission.participant.name}.`
+                                : "Visualizing all participant reaction times."}
                         </CardDescription>
                     </div>
                     
@@ -149,31 +143,47 @@ export default function ReactionStationPage() {
                         <Button type="submit" className="w-full h-9 bg-primary text-primary-foreground hover:bg-primary/90">Submit</Button>
                     </form>
                 </CardHeader>
-                <CardContent className="p-4 sm:p-6 pt-0">
-                    <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'male' | 'female')} className="w-full">
-                        <TabsList className="grid w-full grid-cols-2 mb-4">
-                            <TabsTrigger value="male">Male</TabsTrigger>
-                            <TabsTrigger value="female">Female</TabsTrigger>
-                        </TabsList>
-                        <TabsContent value="male">
-                            <BenchmarkTable 
-                                gender="male"
-                                highlightInfo={currentParticipant?.gender === 'male' && lastSubmission ? {
-                                    ageRange: currentParticipant.ageRange,
-                                    points: lastSubmission.points
-                                } : null}
+                <CardContent className="p-4 sm:p-6 pt-0 h-[500px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <ComposedChart margin={{ top: 5, right: 20, left: 10, bottom: 20 }}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis 
+                                type="number" 
+                                dataKey="age"
+                                name="Age" 
+                                domain={[15, 85]}
+                                ticks={[20, 30, 40, 50, 60, 70, 80]}
+                                label={{ value: "Age (Years)", position: 'insideBottom', offset: -10 }}
                             />
-                        </TabsContent>
-                        <TabsContent value="female">
-                             <BenchmarkTable 
-                                gender="female"
-                                highlightInfo={currentParticipant?.gender === 'female' && lastSubmission ? {
-                                    ageRange: currentParticipant.ageRange,
-                                    points: lastSubmission.points
-                                } : null}
+                            <YAxis 
+                                type="number"
+                                name="Reaction Time" 
+                                domain={[250, 550]}
+                                label={{ value: 'Reaction Time (ms)', angle: -90, position: 'insideLeft' }}
                             />
-                        </TabsContent>
-                    </Tabs>
+                            <Tooltip content={<CustomTooltip />} />
+                            <Legend verticalAlign="top" align="right" />
+                            
+                            <Line data={reactionTrendData} type="monotone" dataKey="male" stroke="#3b82f6" strokeWidth={3} dot={false} name="Male (Average)" activeDot={false} />
+                            <Line data={reactionTrendData} type="monotone" dataKey="female" stroke="#ec4899" strokeWidth={3} dot={false} name="Female (Average)" activeDot={false} />
+                            
+                            <Scatter name="Male" data={chartData.maleData} dataKey="time" fill="#3b82f6" fillOpacity={0.6} />
+                            <Scatter name="Female" data={chartData.femaleData} dataKey="time" fill="#ec4899" fillOpacity={0.6} />
+                            
+                            {highlightedPoint && (
+                                <ReferenceDot 
+                                    x={highlightedPoint.age} 
+                                    y={highlightedPoint.time} 
+                                    r={8} 
+                                    fill="hsl(var(--accent))" 
+                                    stroke="white" 
+                                    strokeWidth={2}
+                                    ifOverflow="extendDomain" >
+                                    <animate attributeName="r" from="8" to="12" dur="1s" repeatCount="indefinite" />
+                                </ReferenceDot>
+                            )}
+                        </ComposedChart>
+                    </ResponsiveContainer>
                 </CardContent>
             </Card>
         </div>
