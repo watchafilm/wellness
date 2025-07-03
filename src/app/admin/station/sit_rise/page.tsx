@@ -82,10 +82,20 @@ function BenchmarkTable({ gender, highlightInfo }: {
                                             {isRowHighlighted && <div className="absolute inset-0 bg-accent/20 animate-reveal-x origin-left" />}
                                             {isColHighlighted && <div className="absolute inset-0 bg-accent/20 animate-reveal-y origin-top" />}
                                             {isCellHighlighted && (
-                                                <div className={cn(
-                                                    "absolute inset-0 animate-pop-in border-2 border-accent",
-                                                    zoneColorClasses[zone]
-                                                )} />
+                                                <>
+                                                    <div className={cn(
+                                                        "absolute inset-0 animate-pop-in border-2 border-accent",
+                                                        zoneColorClasses[zone]
+                                                    )} />
+                                                    <div className="absolute inset-0 flex items-center justify-center opacity-0 animate-scale-in-text">
+                                                        <span 
+                                                            className="relative font-extrabold text-2xl text-white" 
+                                                            style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.7)' }}
+                                                        >
+                                                            {score}
+                                                        </span>
+                                                    </div>
+                                                </>
                                             )}
                                         </TableCell>
                                     );
