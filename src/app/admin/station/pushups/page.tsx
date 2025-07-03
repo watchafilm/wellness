@@ -1,14 +1,14 @@
 
 "use client";
 
-import { useState, useMemo, useEffect } from 'react';
-import { useParticipants, type Participant } from '@/lib/data';
+import { useState } from 'react';
+import type { Participant } from '@/lib/data';
+import { useParticipants } from '@/lib/data';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { useToast } from "@/hooks/use-toast";
-import { Dumbbell, Trophy } from 'lucide-react';
+import { Dumbbell } from 'lucide-react';
 import { pushupsBenchmarkTextData, calculatePushupsPoints, pointLevels } from '@/lib/benchmarks/pushups';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from '@/lib/utils';
@@ -85,7 +85,8 @@ export default function PushupsStationPage() {
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         
-        const formData = new FormData(e.currentTarget);
+        const form = e.currentTarget;
+        const formData = new FormData(form);
         const participantId = (formData.get('participantId') as string)?.toUpperCase().trim();
         const scoreValue = formData.get('score');
         
@@ -110,7 +111,6 @@ export default function PushupsStationPage() {
         
         setCurrentParticipant(participant);
         setLastSubmission({ participantId: participant.id, points });
-
         setActiveTab(participant.gender);
 
         toast({
@@ -118,83 +118,60 @@ export default function PushupsStationPage() {
             description: `${participant.name} scored ${score} reps, earning ${points} points (${pointLevels[points] || 'N/A'}).`,
         });
         
-        const form = e.currentTarget;
-        const scoreInput = form.elements.namedItem('score') as HTMLInputElement;
-        if (scoreInput) scoreInput.value = '';
-        scoreInput?.focus();
+        form.reset();
+        const pIdInput = form.elements.namedItem('participantId') as HTMLInputElement;
+        pIdInput?.focus();
     };
     
     return (
-         <div className="container mx-auto flex flex-col items-center gap-8 py-8">
-            <div className="w-full max-w-lg">
-                <Card className="w-full shadow-lg border-none">
-                    <CardHeader>
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-accent/20 rounded-lg">
-                                <Dumbbell className="h-8 w-8 text-accent" />
-                            </div>
-                            <div>
-                                <CardTitle className="font-headline text-2xl">Push Ups Station</CardTitle>
-                                <CardDescription>Enter participant score for this station.</CardDescription>
-                            </div>
-                        </div>
-                    </CardHeader>
-                    <CardContent>
-                        <form onSubmit={handleSubmit} className="space-y-6">
-                            <div>
-                                <Label htmlFor="participantId-pushups">Participant ID</Label>
-                                <Input id="participantId-pushups" name="participantId" placeholder="e.g., P001" required className="mt-1" autoComplete="off" />
-                            </div>
-                            <div>
-                                <Label htmlFor="score-pushups">Score (reps)</Label>
-                                <Input id="score-pushups" name="score" type="number" step="1" min="0" placeholder="Enter number of push-ups" required className="mt-1" />
-                            </div>
-                            <Button type="submit" className="w-full !mt-8 bg-primary text-primary-foreground hover:bg-primary/90">Submit Score</Button>
-                        </form>
-                    </CardContent>
-                </Card>
-            </div>
-            
-            <div className="w-full">
-                <Card className="w-full shadow-lg border-none min-h-[500px]">
-                    <CardHeader>
-                        <CardTitle className="font-headline text-2xl flex items-center gap-2">
-                            <Trophy className="text-accent" /> Push-ups Benchmark
+        <div className="container mx-auto py-8">
+            <Card className="w-full shadow-lg border-none">
+                <CardHeader className="flex flex-row items-start justify-between gap-4 p-4 sm:p-6">
+                    <div className="flex-1">
+                        <CardTitle className="font-headline text-2xl flex items-center gap-3">
+                            <Dumbbell className="h-8 w-8 text-accent" />
+                            Push-ups Benchmark
                         </CardTitle>
-                        <CardDescription>
-                            {currentParticipant && lastSubmission
-                                ? `Highlighting score for ${currentParticipant.name} (Age: ${currentParticipant.ageRange})`
-                                : "Submit a score to automatically display the relevant benchmark."}
+                        <CardDescription className="mt-2">
+                           {currentParticipant && lastSubmission
+                                ? `Highlighting score for ${currentParticipant.name} (${currentParticipant.ageRange}, ${pointLevels[lastSubmission.points]}).`
+                                : "Enter score to see participant's rank."}
                         </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'male' | 'female')} className="w-full">
-                            <TabsList className="grid w-full grid-cols-2 mb-4">
-                                <TabsTrigger value="male">Male</TabsTrigger>
-                                <TabsTrigger value="female">Female</TabsTrigger>
-                            </TabsList>
-                            <TabsContent value="male">
-                                <BenchmarkTable 
-                                    gender="male"
-                                    highlightInfo={currentParticipant?.gender === 'male' && lastSubmission ? {
-                                        ageRange: currentParticipant.ageRange,
-                                        points: lastSubmission.points
-                                    } : null}
-                                />
-                            </TabsContent>
-                            <TabsContent value="female">
-                                 <BenchmarkTable 
-                                    gender="female"
-                                    highlightInfo={currentParticipant?.gender === 'female' && lastSubmission ? {
-                                        ageRange: currentParticipant.ageRange,
-                                        points: lastSubmission.points
-                                    } : null}
-                                />
-                            </TabsContent>
-                        </Tabs>
-                    </CardContent>
-                </Card>
-            </div>
+                    </div>
+                    
+                    <form onSubmit={handleSubmit} className="w-full max-w-[220px] space-y-2">
+                        <Input name="participantId" placeholder="Participant ID" required autoComplete="off" className="h-9"/>
+                        <Input name="score" type="number" step="1" min="0" placeholder="Score (reps)" required className="h-9"/>
+                        <Button type="submit" className="w-full h-9 bg-primary text-primary-foreground hover:bg-primary/90">Submit</Button>
+                    </form>
+                </CardHeader>
+                <CardContent className="p-4 sm:p-6 pt-0">
+                    <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'male' | 'female')} className="w-full">
+                        <TabsList className="grid w-full grid-cols-2 mb-4">
+                            <TabsTrigger value="male">Male</TabsTrigger>
+                            <TabsTrigger value="female">Female</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="male">
+                            <BenchmarkTable 
+                                gender="male"
+                                highlightInfo={currentParticipant?.gender === 'male' && lastSubmission ? {
+                                    ageRange: currentParticipant.ageRange,
+                                    points: lastSubmission.points
+                                } : null}
+                            />
+                        </TabsContent>
+                        <TabsContent value="female">
+                             <BenchmarkTable 
+                                gender="female"
+                                highlightInfo={currentParticipant?.gender === 'female' && lastSubmission ? {
+                                    ageRange: currentParticipant.ageRange,
+                                    points: lastSubmission.points
+                                } : null}
+                            />
+                        </TabsContent>
+                    </Tabs>
+                </CardContent>
+            </Card>
         </div>
     );
 }
