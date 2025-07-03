@@ -79,12 +79,12 @@ function BenchmarkTable({ gender, highlightInfo }: {
                                             )}
                                         >
                                             {/* Highlighter Divs overlay the base color */}
-                                            {isRowHighlighted && <div className="absolute inset-0 bg-accent/20 animate-reveal-x origin-left" />}
-                                            {isColHighlighted && <div className="absolute inset-0 bg-accent/20 animate-reveal-y origin-top" />}
+                                            {isRowHighlighted && <div className="absolute inset-0 bg-primary/20 animate-reveal-x origin-left" />}
+                                            {isColHighlighted && <div className="absolute inset-0 bg-primary/20 animate-reveal-y origin-top" />}
                                             {isCellHighlighted && (
                                                 <>
                                                     <div className={cn(
-                                                        "absolute inset-0 animate-pop-in border-2 border-accent",
+                                                        "absolute inset-0 animate-pop-in border-2 border-primary",
                                                         zoneColorClasses[zone]
                                                     )} />
                                                     <div className="absolute inset-0 flex items-center justify-center opacity-0 animate-scale-in-text">
