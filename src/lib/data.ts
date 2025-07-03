@@ -13,7 +13,6 @@ import {
   onSnapshot,
   runTransaction,
   query,
-  orderBy,
   type DocumentData,
 } from 'firebase/firestore';
 import type { StationKey } from './stations';
@@ -68,12 +67,17 @@ export function useParticipants() {
   const { toast } = useToast();
 
   useEffect(() => {
-    const q = query(collection(db, PARTICIPANTS_COLLECTION), orderBy("createdAt", "asc"));
+    // The orderBy clause requires a custom Firestore index. 
+    // This has been removed to prevent errors on a fresh database setup.
+    // Client-side sorting is used instead to maintain order.
+    const q = query(collection(db, PARTICIPANTS_COLLECTION));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const participantsData: Participant[] = [];
       querySnapshot.forEach((doc) => {
         participantsData.push({ id: doc.id, ...doc.data() } as Participant);
       });
+      // Sort participants by creation time on the client-side
+      participantsData.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
       setParticipants(participantsData);
       setLoading(false);
     }, (error) => {
