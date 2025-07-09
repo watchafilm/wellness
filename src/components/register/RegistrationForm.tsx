@@ -271,33 +271,37 @@ export function RegistrationForm() {
               )}
             />
             
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>เบอร์โทรศัพท์</FormLabel>
-                  <FormControl>
-                    <Input placeholder="0812345678" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>อีเมล</FormLabel>
-                  <FormControl>
-                    <Input placeholder="you@example.com" {...field} />
-                  </FormControl>
-            
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="space-y-4">
+              <p className="text-sm font-medium">กรุณากรอกเบอร์โทรศัพท์หรืออีเมล</p>
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>เบอร์โทรศัพท์</FormLabel>
+                    <FormControl>
+                      <Input placeholder="0812345678" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>อีเมล</FormLabel>
+                    <FormControl>
+                      <Input placeholder="you@example.com" {...field} />
+                    </FormControl>
+              
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
              <FormField
                 control={form.control}
                 name="lineId"
