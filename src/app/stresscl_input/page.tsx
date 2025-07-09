@@ -2,7 +2,6 @@
 "use client";
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -24,7 +23,6 @@ const formSchema = z.object({
 });
 
 export default function StressInputPage() {
-    const router = useRouter();
     const { toast } = useToast();
     const { participants, updateStressScores, loading } = useParticipants();
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -38,13 +36,19 @@ export default function StressInputPage() {
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         setIsSubmitting(true);
-        await updateStressScores(values.participantId, values.physicalStress, values.mentalStress);
-        toast({
-          title: "Success!",
-          description: "Stress scores have been submitted. Redirecting...",
-        });
-        router.push(`/stresscl?id=${values.participantId}`);
-        setIsSubmitting(false);
+        try {
+            await updateStressScores(values.participantId, values.physicalStress, values.mentalStress);
+            toast({
+              title: "Success!",
+              description: `Stress scores for ${values.participantId} have been saved.`,
+            });
+            form.reset(); // Reset form fields for next entry
+        } catch (error) {
+            // Error toast is already handled in the useParticipants hook
+            console.error("Failed to submit stress scores:", error);
+        } finally {
+            setIsSubmitting(false);
+        }
     }
     
     if (loading) {
