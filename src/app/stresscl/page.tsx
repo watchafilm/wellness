@@ -31,8 +31,8 @@ const StressDisplay = ({ participant }: { participant: Participant | null }) => 
             <h2 className="text-3xl font-bold tracking-widest mb-8 text-center">OVERALL STRESS</h2>
             <div className="flex flex-col md:flex-row items-center justify-center gap-12 lg:gap-20">
                 {/* Big Circle for Overall */}
-                <div className="relative w-56 h-56 md:w-64 md:h-64 rounded-full bg-cyan-200/40 flex items-center justify-center backdrop-blur-sm shadow-xl border-4 border-white/50">
-                    <span className="text-8xl md:text-9xl font-bold tracking-tighter">
+                <div className="relative w-56 h-56 md:w-64 md:h-64 rounded-full bg-cyan-200/40 backdrop-blur-sm shadow-xl border-4 border-white/50">
+                    <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-8xl md:text-9xl font-bold tracking-tighter">
                         {overallStress !== undefined ? Math.round(overallStress) : '0'}
                     </span>
                 </div>
