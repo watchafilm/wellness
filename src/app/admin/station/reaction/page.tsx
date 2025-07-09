@@ -22,6 +22,7 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from 'recharts';
+import { ParticipantSearch } from '@/components/admin/ParticipantSearch';
 
 const ageRangeToMidpoint = (ageRange: string): number => {
     if (ageRange.includes('+')) {
@@ -66,21 +67,21 @@ export default function ReactionStationPage() {
     const { participants, updateScore, loading } = useParticipants();
     const { toast } = useToast();
     const [lastSubmission, setLastSubmission] = useState<{ participant: Participant; score: number; result: { points: number; label: string; } } | null>(null);
+    
+    const [selectedParticipantId, setSelectedParticipantId] = useState('');
+    const [score, setScore] = useState('');
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         
-        const form = e.currentTarget;
-        const formData = new FormData(form);
-        const participantId = (formData.get('participantId') as string)?.toUpperCase().trim();
-        const scoreValue = formData.get('score');
+        const participantId = selectedParticipantId.toUpperCase().trim();
         
-        if (!participantId || scoreValue === null) {
-            toast({ variant: "destructive", title: "Error", description: "Participant ID and score are required." });
+        if (!participantId || score === '') {
+            toast({ variant: "destructive", title: "Error", description: "Participant and score are required." });
             return;
         }
 
-        const score = Number(scoreValue);
+        const scoreValue = Number(score);
         const participant = participants.find(p => p.id.toUpperCase() === participantId);
 
         if (!participant) {
@@ -89,15 +90,14 @@ export default function ReactionStationPage() {
             return;
         }
         
-        const result = calculateReactionResult(participant.gender, participant.ageRange, score);
+        const result = calculateReactionResult(participant.gender, participant.ageRange, scoreValue);
 
-        updateScore('reaction', participant.id, score);
-        const updatedParticipant = { ...participant, scores: { ...participant.scores, reaction: score } };
-        setLastSubmission({ participant: updatedParticipant, score, result });
+        updateScore('reaction', participant.id, scoreValue);
+        const updatedParticipant = { ...participant, scores: { ...participant.scores, reaction: scoreValue } };
+        setLastSubmission({ participant: updatedParticipant, score: scoreValue, result });
 
-        form.reset();
-        const pIdInput = form.elements.namedItem('participantId') as HTMLInputElement;
-        pIdInput?.focus();
+        setSelectedParticipantId('');
+        setScore('');
     };
 
     const highlightedPoint = useMemo(() => {
@@ -133,15 +133,25 @@ export default function ReactionStationPage() {
                         </div>
                         
                         <form onSubmit={handleSubmit} className="w-full md:max-w-[220px] space-y-2">
-                            <Input 
-                                name="participantId" 
-                                placeholder="Participant ID" 
-                                required 
-                                autoComplete="off" 
-                                className="h-9"
-                                onChange={() => setLastSubmission(null)}
+                           <ParticipantSearch 
+                                participants={participants}
+                                value={selectedParticipantId}
+                                onSelect={(id) => {
+                                    setSelectedParticipantId(id);
+                                    setLastSubmission(null);
+                                }}
                             />
-                            <Input name="score" type="number" step="0.001" min="0" placeholder="Score (s)" required className="h-9"/>
+                            <Input 
+                                name="score" 
+                                type="number" 
+                                step="0.001" 
+                                min="0" 
+                                placeholder="Score (s)" 
+                                required 
+                                className="h-9"
+                                value={score}
+                                onChange={(e) => setScore(e.target.value)}
+                            />
                             <Button type="submit" className="w-full h-9 bg-primary text-primary-foreground hover:bg-primary/90">Submit</Button>
                         </form>
                     </div>

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -16,7 +17,9 @@ import {
     ageGroupRows,
     getSitRiseZone,
     mapAppAgeToVisualAge,
+    calculateSitRisePoints
 } from '@/lib/benchmarks/sit_rise';
+import { ParticipantSearch } from '@/components/admin/ParticipantSearch';
 
 
 const zoneColorClasses: { [key: number]: string } = {
@@ -115,21 +118,21 @@ export default function SitRiseVisualStationPage() {
     const [highlightInfo, setHighlightInfo] = useState<{ ageRange: string; score: number; } | null>(null);
     const [currentParticipant, setCurrentParticipant] = useState<Participant | null>(null);
     const [activeTab, setActiveTab] = useState<'male' | 'female'>('male');
+    
+    const [selectedParticipantId, setSelectedParticipantId] = useState('');
+    const [score, setScore] = useState('');
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         
-        const form = e.currentTarget;
-        const formData = new FormData(form);
-        const participantId = (formData.get('participantId') as string)?.toUpperCase().trim();
-        const scoreValue = formData.get('score');
+        const participantId = selectedParticipantId.toUpperCase().trim();
         
-        if (!participantId || scoreValue === null || scoreValue === '') {
+        if (!participantId || score === '') {
             toast({ variant: "destructive", title: "Error", description: "Participant ID and score are required." });
             return;
         }
 
-        const score = Number(scoreValue);
+        const scoreValue = Number(score);
         const participant = participants.find(p => p.id.toUpperCase() === participantId);
 
         if (!participant) {
@@ -139,20 +142,19 @@ export default function SitRiseVisualStationPage() {
             return;
         }
         
-        if (score < 0 || score > 10) {
+        if (scoreValue < 0 || scoreValue > 10) {
             toast({ variant: "destructive", title: "Invalid Score", description: "Score must be between 0 and 10." });
             return;
         }
 
-        updateScore('sit_rise', participant.id, score);
+        updateScore('sit_rise', participant.id, scoreValue);
         
         setCurrentParticipant(participant);
-        setHighlightInfo({ ageRange: participant.ageRange, score });
+        setHighlightInfo({ ageRange: participant.ageRange, score: scoreValue });
         setActiveTab(participant.gender);
 
-        form.reset();
-        const pIdInput = form.elements.namedItem('participantId') as HTMLInputElement;
-        pIdInput?.focus();
+        setSelectedParticipantId('');
+        setScore('');
     };
     
     if (loading) {
@@ -180,12 +182,31 @@ export default function SitRiseVisualStationPage() {
                     </div>
                      <form onSubmit={handleSubmit} className="flex flex-wrap sm:flex-nowrap items-end gap-2 w-full md:w-auto">
                         <div className="flex-1 min-w-[120px]">
-                            <label htmlFor="participantId" className="text-sm font-medium text-muted-foreground">Participant ID</label>
-                            <Input id="participantId" name="participantId" placeholder="P001" required autoComplete="off" className="h-9 mt-1"/>
+                            <label htmlFor="participant-search" className="text-sm font-medium text-muted-foreground">Participant ID</label>
+                            <div className="mt-1">
+                                <ParticipantSearch 
+                                    id="participant-search"
+                                    participants={participants}
+                                    value={selectedParticipantId}
+                                    onSelect={setSelectedParticipantId}
+                                />
+                            </div>
                         </div>
                         <div className="w-28">
                              <label htmlFor="score" className="text-sm font-medium text-muted-foreground">Score (0-10)</label>
-                            <Input id="score" name="score" type="number" step="0.5" min="0" max="10" placeholder="e.g. 7.5" required className="h-9 mt-1"/>
+                            <Input 
+                                id="score" 
+                                name="score" 
+                                type="number" 
+                                step="0.5" 
+                                min="0" 
+                                max="10" 
+                                placeholder="e.g. 7.5" 
+                                required 
+                                className="h-9 mt-1"
+                                value={score}
+                                onChange={(e) => setScore(e.target.value)}
+                            />
                         </div>
                         <Button type="submit" className="h-9 bg-primary text-primary-foreground hover:bg-primary/90">Submit</Button>
                     </form>

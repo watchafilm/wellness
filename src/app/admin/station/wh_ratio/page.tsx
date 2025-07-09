@@ -22,6 +22,7 @@ import {
     pointLevels,
     pointColors,
 } from '@/lib/benchmarks/wh_ratio';
+import { ParticipantSearch } from '@/components/admin/ParticipantSearch';
 
 function BenchmarkTable({ gender, highlightInfo }: {
     gender: 'male' | 'female';
@@ -98,14 +99,14 @@ export default function WhRatioStationPage() {
     const [currentParticipant, setCurrentParticipant] = useState<Participant | null>(null);
     const [activeTab, setActiveTab] = useState<'male' | 'female'>('male');
     
+    const [selectedParticipantId, setSelectedParticipantId] = useState('');
+    const [waist, setWaist] = useState('');
+    const [height, setHeight] = useState('');
+    
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         
-        const form = e.currentTarget;
-        const formData = new FormData(form);
-        const participantId = (formData.get('participantId') as string)?.toUpperCase().trim();
-        const waist = Number(formData.get('waist'));
-        const height = Number(formData.get('height'));
+        const participantId = selectedParticipantId.toUpperCase().trim();
         
         if (!participantId || !waist || !height) {
             toast({ variant: "destructive", title: "Error", description: "All fields are required." });
@@ -121,7 +122,7 @@ export default function WhRatioStationPage() {
             return;
         }
         
-        const result = calculateWhRatioPoints(participant.gender, waist, height);
+        const result = calculateWhRatioPoints(participant.gender, Number(waist), Number(height));
         if (!result) {
              toast({ variant: "destructive", title: "Out of Range", description: "Waist or Height is out of the chart's range." });
              setHighlightInfo(null);
@@ -134,9 +135,9 @@ export default function WhRatioStationPage() {
         setHighlightInfo({ waist: result.closestWaist, height: result.closestHeight });
         setActiveTab(participant.gender);
         
-        form.reset();
-        const pIdInput = form.elements.namedItem('participantId') as HTMLInputElement;
-        pIdInput?.focus();
+        setSelectedParticipantId('');
+        setWaist('');
+        setHeight('');
     };
     
     if (loading) {
@@ -164,16 +165,45 @@ export default function WhRatioStationPage() {
                     </div>
                      <form onSubmit={handleSubmit} className="flex flex-wrap sm:flex-nowrap items-end gap-2 w-full md:w-auto">
                         <div className="flex-1 min-w-[120px]">
-                            <label htmlFor="participantId" className="text-sm font-medium text-muted-foreground">Participant ID</label>
-                            <Input id="participantId" name="participantId" placeholder="P001" required autoComplete="off" className="h-9 mt-1"/>
+                            <label htmlFor="participant-search" className="text-sm font-medium text-muted-foreground">Participant ID</label>
+                            <div className="mt-1">
+                                <ParticipantSearch 
+                                    id="participant-search"
+                                    participants={participants}
+                                    value={selectedParticipantId}
+                                    onSelect={setSelectedParticipantId}
+                                />
+                            </div>
                         </div>
                          <div className="w-28">
                              <label htmlFor="waist" className="text-sm font-medium text-muted-foreground">Waist (in)</label>
-                            <Input id="waist" name="waist" type="number" step="1" min="0" placeholder="e.g. 34" required className="h-9 mt-1"/>
+                            <Input 
+                                id="waist" 
+                                name="waist" 
+                                type="number" 
+                                step="1" 
+                                min="0" 
+                                placeholder="e.g. 34" 
+                                required 
+                                className="h-9 mt-1"
+                                value={waist}
+                                onChange={(e) => setWaist(e.target.value)}
+                            />
                         </div>
                         <div className="w-28">
                              <label htmlFor="height" className="text-sm font-medium text-muted-foreground">Height (in)</label>
-                            <Input id="height" name="height" type="number" step="1" min="0" placeholder="e.g. 68" required className="h-9 mt-1"/>
+                            <Input 
+                                id="height" 
+                                name="height" 
+                                type="number" 
+                                step="1" 
+                                min="0" 
+                                placeholder="e.g. 68" 
+                                required 
+                                className="h-9 mt-1"
+                                value={height}
+                                onChange={(e) => setHeight(e.target.value)}
+                            />
                         </div>
                         <Button type="submit" className="h-9 bg-primary text-primary-foreground hover:bg-primary/90">Submit</Button>
                     </form>

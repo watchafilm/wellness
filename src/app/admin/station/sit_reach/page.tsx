@@ -20,6 +20,7 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ParticipantSearch } from '@/components/admin/ParticipantSearch';
 
 function BenchmarkTable({ gender, highlightInfo }: { 
     gender: 'male' | 'female';
@@ -88,21 +89,21 @@ export default function SitReachStationPage() {
     const [lastSubmission, setLastSubmission] = useState<{ participantId: string; points: number } | null>(null);
     const [currentParticipant, setCurrentParticipant] = useState<Participant | null>(null);
     const [activeTab, setActiveTab] = useState<'male' | 'female'>('male');
+    
+    const [selectedParticipantId, setSelectedParticipantId] = useState('');
+    const [score, setScore] = useState('');
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         
-        const form = e.currentTarget;
-        const formData = new FormData(form);
-        const participantId = (formData.get('participantId') as string)?.toUpperCase().trim();
-        const scoreValue = formData.get('score');
+        const participantId = selectedParticipantId.toUpperCase().trim();
         
-        if (!participantId || scoreValue === null) {
-            toast({ variant: "destructive", title: "Error", description: "Participant ID and score are required." });
+        if (!participantId || score === '') {
+            toast({ variant: "destructive", title: "Error", description: "Participant and score are required." });
             return;
         }
 
-        const score = Number(scoreValue);
+        const scoreValue = Number(score);
         const participant = participants.find(p => p.id.toUpperCase() === participantId);
 
         if (!participant) {
@@ -112,17 +113,16 @@ export default function SitReachStationPage() {
             return;
         }
 
-        const result = calculateSitReachResult(participant.gender, participant.ageRange, score);
+        const result = calculateSitReachResult(participant.gender, participant.ageRange, scoreValue);
         
-        updateScore('sit_reach', participant.id, score);
+        updateScore('sit_reach', participant.id, scoreValue);
         
         setCurrentParticipant(participant);
         setLastSubmission({ participantId: participant.id, points: result.points });
         setActiveTab(participant.gender);
         
-        form.reset();
-        const pIdInput = form.elements.namedItem('participantId') as HTMLInputElement;
-        pIdInput?.focus();
+        setSelectedParticipantId('');
+        setScore('');
     };
 
     if (loading) {
@@ -150,8 +150,22 @@ export default function SitReachStationPage() {
                     </div>
                     
                     <form onSubmit={handleSubmit} className="w-full md:max-w-[220px] space-y-2">
-                        <Input name="participantId" placeholder="Participant ID" required autoComplete="off" className="h-9"/>
-                        <Input name="score" type="number" step="1" min="0" placeholder="Score (cm)" required className="h-9"/>
+                        <ParticipantSearch 
+                            participants={participants}
+                            value={selectedParticipantId}
+                            onSelect={setSelectedParticipantId}
+                        />
+                        <Input 
+                            name="score" 
+                            type="number" 
+                            step="1" 
+                            min="0" 
+                            placeholder="Score (cm)" 
+                            required 
+                            className="h-9"
+                            value={score}
+                            onChange={(e) => setScore(e.target.value)}
+                        />
                         <Button type="submit" className="w-full h-9 bg-primary text-primary-foreground hover:bg-primary/90">Submit</Button>
                     </form>
                 </CardHeader>
