@@ -208,7 +208,7 @@ export function RegistrationForm() {
                 name="nickname"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>ชื่อเล่น</FormLabel>
+                    <FormLabel>ชื่อเล่น (หากไม่สะดวกกรอกชื่อจริง)</FormLabel>
                     <FormControl>
                       <Input placeholder="โปรดกรอกชื่อเล่นของคุณ" {...field} />
                     </FormControl>
