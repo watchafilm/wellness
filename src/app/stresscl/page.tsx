@@ -28,11 +28,17 @@ const StressDisplay = ({ participant }: { participant: Participant | null }) => 
     
     return (
         <div className="w-full h-full flex flex-col items-center justify-center text-slate-800">
-            <div className="flex flex-col md:flex-row items-center justify-center gap-12 lg:gap-20">
+            <div className="flex flex-col md:flex-row items-center justify-center gap-12 lg:gap-16">
                 <div className="flex flex-col items-center">
                     <h2 className="text-3xl font-bold tracking-widest mb-8 text-center">OVERALL STRESS</h2>
                     {/* Big Circle for Overall */}
-                    <div className="relative w-56 h-56 md:w-64 md:h-64 rounded-full bg-cyan-200/40 backdrop-blur-sm shadow-xl border-4 border-white/50">
+                    <div className="relative w-56 h-56 md:w-64 md:h-64">
+                         <div
+                            className="absolute inset-0 rounded-full bg-cyan-100/50"
+                            style={{
+                                boxShadow: 'inset 0 0 40px rgba(100, 200, 220, 0.4), 0 0 20px rgba(100, 200, 220, 0.2)'
+                            }}
+                        />
                         <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-8xl md:text-9xl font-bold tracking-tighter">
                             {overallStress !== undefined ? Math.round(overallStress) : '0'}
                         </span>
@@ -116,8 +122,8 @@ export default function StressPage() {
                 <Image src="https://www.genfosis.com/images/Genfosis_Logo_PNG.webp" alt="Genfosis Logo" width={150} height={32} />
             </header>
             
-            <main className="relative z-10 grid grid-cols-1 md:grid-cols-5 min-h-screen">
-                <aside className="col-span-2 p-4 md:p-8 flex flex-col justify-center">
+            <main className="relative z-4 grid grid-cols-1 md:grid-cols-5 min-h-screen">
+                <aside className="col-span-2 p-4 md:p-14 flex flex-col justify-center">
                     <Card className="bg-white/60 border-gray-200/50 backdrop-blur-md shadow-lg">
                         <CardHeader>
                             <CardTitle className="font-headline text-2xl text-gray-800">Stress Scoreboard</CardTitle>
