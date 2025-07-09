@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -32,10 +33,16 @@ export interface Participant {
   email?: string;
   lineId?: string;
   scores: Scores;
+  stress?: {
+    physical: number;
+    mental: number;
+    overall: number;
+    updatedAt: number;
+  };
   createdAt: number; // For ordering
 }
 
-export type NewParticipantData = Omit<Participant, 'id' | 'scores' | 'createdAt'>;
+export type NewParticipantData = Omit<Participant, 'id' | 'scores' | 'createdAt' | 'stress'>;
 export type UpdateParticipantData = Partial<Omit<Participant, 'id' | 'createdAt'>>;
 
 const PARTICIPANTS_COLLECTION = 'participants';
@@ -99,7 +106,7 @@ export function useParticipants() {
     setLoading(true);
     try {
       const newId = await getNextParticipantId();
-      const newParticipant: Omit<Participant, 'id'> = {
+      const newParticipant: Omit<Participant, 'id' | 'stress'> = {
         ...participantData,
         scores: {},
         createdAt: Date.now(),
@@ -160,6 +167,33 @@ export function useParticipants() {
       }
   };
 
+  const updateStressScores = async (participantId: string, physicalInput: number, mentalInput: number) => {
+    const participantRef = doc(db, PARTICIPANTS_COLLECTION, participantId);
+    
+    const physical = 100 - physicalInput;
+    const mental = 100 - mentalInput;
+    const overall = (physical + mental) / 2;
+
+    const stressData = {
+        physical,
+        mental,
+        overall,
+        updatedAt: Date.now(),
+    };
+
+    try {
+        await updateDoc(participantRef, { stress: stressData });
+    } catch (error) {
+        console.error("Error updating stress score: ", error);
+        toast({
+            variant: "destructive",
+            title: "Update Error",
+            description: "Could not update stress score.",
+        });
+        throw error;
+    }
+  };
+
   const deleteParticipant = async (participantId: string) => {
     const participantRef = doc(db, PARTICIPANTS_COLLECTION, participantId);
     try {
@@ -182,5 +216,5 @@ export function useParticipants() {
       return participants.find(p => p.id.toUpperCase() === id.toUpperCase());
   };
 
-  return { participants, loading, addParticipant, updateParticipant, deleteParticipant, updateScore, getParticipant };
+  return { participants, loading, addParticipant, updateParticipant, deleteParticipant, updateScore, getParticipant, updateStressScores };
 }
