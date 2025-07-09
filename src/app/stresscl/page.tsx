@@ -116,8 +116,8 @@ export default function StressPage() {
                 <Image src="https://www.genfosis.com/images/Genfosis_Logo_PNG.webp" alt="Genfosis Logo" width={150} height={32} />
             </header>
             
-            <main className="relative z-10 grid grid-cols-1 md:grid-cols-3 min-h-screen">
-                <aside className="col-span-1 p-4 md:p-8 flex flex-col justify-center">
+            <main className="relative z-10 grid grid-cols-1 md:grid-cols-5 min-h-screen">
+                <aside className="col-span-2 p-4 md:p-8 flex flex-col justify-center">
                     <Card className="bg-white/60 border-gray-200/50 backdrop-blur-md shadow-lg">
                         <CardHeader>
                             <CardTitle className="font-headline text-2xl text-gray-800">Stress Scoreboard</CardTitle>
@@ -147,7 +147,7 @@ export default function StressPage() {
                         </CardContent>
                     </Card>
                 </aside>
-                <section className="col-span-2 flex items-center justify-center p-4">
+                <section className="col-span-3 flex items-center justify-start p-4">
                     <StressDisplay participant={activeParticipant} />
                 </section>
             </main>
