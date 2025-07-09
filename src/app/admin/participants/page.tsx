@@ -50,14 +50,47 @@ const scoreSchema = z.object(
 );
 
 const formSchema = z.object({
-  firstName: z.string().min(2, { message: "กรุณากรอกชื่อจริงอย่างน้อย 2 ตัวอักษร" }),
-  lastName: z.string().min(2, { message: "กรุณากรอกนามสกุลอย่างน้อย 2 ตัวอักษร" }),
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  nickname: z.string().optional(),
   gender: z.enum(["male", "female"]),
   ageRange: z.enum(ageRanges),
-  phone: z.string().regex(/^(0\d{9})$/, { message: "กรุณากรอกเบอร์โทรศัพท์ 10 หลักให้ถูกต้อง" }),
-  email: z.string().email({ message: "กรุณากรอกอีเมลให้ถูกต้อง" }),
+  phone: z.string().optional(),
+  email: z.string().optional(),
   lineId: z.string().optional(),
   scores: scoreSchema,
+}).superRefine((data, ctx) => {
+  if (!data.firstName?.trim() && !data.lastName?.trim() && !data.nickname?.trim()) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "กรุณากรอกชื่อ, นามสกุล หรือชื่อเล่นอย่างน้อยหนึ่งช่อง",
+      path: ["firstName"],
+    });
+  }
+
+  if (!data.phone?.trim() && !data.email?.trim()) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "กรุณากรอกเบอร์โทรศัพท์หรืออีเมลอย่างน้อยหนึ่งช่อง",
+      path: ["phone"],
+    });
+  }
+
+  if (data.phone && !/^(0\d{9})$/.test(data.phone)) {
+    ctx.addIssue({
+      path: ["phone"],
+      message: "กรุณากรอกเบอร์โทรศัพท์ 10 หลักให้ถูกต้อง",
+      code: z.ZodIssueCode.custom,
+    });
+  }
+  
+  if (data.email && !z.string().email({ message: "กรุณากรอกอีเมลให้ถูกต้อง" }).safeParse(data.email).success) {
+    ctx.addIssue({
+      path: ["email"],
+      message: "กรุณากรอกอีเมลให้ถูกต้อง",
+      code: z.ZodIssueCode.custom,
+    });
+  }
 });
 
 export default function ParticipantsPage() {
@@ -70,6 +103,7 @@ export default function ParticipantsPage() {
     defaultValues: {
       firstName: "",
       lastName: "",
+      nickname: "",
       gender: "male",
       phone: "",
       email: "",
@@ -80,17 +114,14 @@ export default function ParticipantsPage() {
 
   useEffect(() => {
     if (selectedParticipant) {
-      const nameParts = selectedParticipant.name.split(' ');
-      const firstName = nameParts[0] || '';
-      const lastName = nameParts.slice(1).join(' ') || '';
-
       form.reset({
-        firstName,
-        lastName,
+        firstName: selectedParticipant.firstName || "",
+        lastName: selectedParticipant.lastName || "",
+        nickname: selectedParticipant.nickname || "",
         gender: selectedParticipant.gender,
         ageRange: selectedParticipant.ageRange,
-        phone: selectedParticipant.phone,
-        email: selectedParticipant.email,
+        phone: selectedParticipant.phone || "",
+        email: selectedParticipant.email || "",
         lineId: selectedParticipant.lineId || "",
         scores: selectedParticipant.scores || {},
       });
@@ -109,8 +140,19 @@ export default function ParticipantsPage() {
   function onSubmit(values: z.infer<typeof formSchema>) {
     if (!selectedParticipant) return;
 
+    const nameParts = [values.firstName, values.lastName].filter(p => p && p.trim()).map(p => p!.trim());
+    let displayName = nameParts.join(" ");
+
+    if (values.nickname && values.nickname.trim()) {
+      const trimmedNickname = values.nickname.trim();
+      displayName = displayName ? `${displayName} (${trimmedNickname})` : trimmedNickname;
+    }
+
     updateParticipant(selectedParticipant.id, {
-      name: `${values.firstName} ${values.lastName}`,
+      name: displayName,
+      firstName: values.firstName,
+      lastName: values.lastName,
+      nickname: values.nickname,
       gender: values.gender,
       ageRange: values.ageRange,
       phone: values.phone,
@@ -228,6 +270,18 @@ export default function ParticipantsPage() {
                     )}
                   />
                 </div>
+
+                 <FormField
+                    control={form.control}
+                    name="nickname"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Nickname</FormLabel>
+                        <FormControl><Input {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
                 <FormField
                   control={form.control}

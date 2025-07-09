@@ -26,17 +26,50 @@ import { useParticipants } from "@/lib/data";
 const ageRanges = ["20-29 ปี", "30-39 ปี", "40-49 ปี", "50-59 ปี", "60-69 ปี", "70+ ปี"] as const;
 
 const formSchema = z.object({
-  firstName: z.string().min(2, { message: "กรุณากรอกชื่อจริงอย่างน้อย 2 ตัวอักษร" }),
-  lastName: z.string().min(2, { message: "กรุณากรอกนามสกุลอย่างน้อย 2 ตัวอักษร" }),
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  nickname: z.string().optional(),
   gender: z.enum(["male", "female"], {
     required_error: "กรุณาเลือกเพศ",
   }),
   ageRange: z.enum(ageRanges, {
     required_error: "กรุณาเลือกช่วงอายุ",
   }),
-  phone: z.string().regex(/^(0\d{9})$/, { message: "กรุณากรอกเบอร์โทรศัพท์ 10 หลักให้ถูกต้อง" }),
-  email: z.string().email({ message: "กรุณากรอกอีเมลให้ถูกต้อง" }),
+  phone: z.string().optional(),
+  email: z.string().optional(),
   lineId: z.string().optional(),
+}).superRefine((data, ctx) => {
+  if (!data.firstName?.trim() && !data.lastName?.trim() && !data.nickname?.trim()) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "กรุณากรอกชื่อ, นามสกุล หรือชื่อเล่นอย่างน้อยหนึ่งช่อง",
+      path: ["firstName"],
+    });
+  }
+
+  if (!data.phone?.trim() && !data.email?.trim()) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "กรุณากรอกเบอร์โทรศัพท์หรืออีเมลอย่างน้อยหนึ่งช่อง",
+      path: ["phone"],
+    });
+  }
+
+  if (data.phone && !/^(0\d{9})$/.test(data.phone)) {
+    ctx.addIssue({
+      path: ["phone"],
+      message: "กรุณากรอกเบอร์โทรศัพท์ 10 หลักให้ถูกต้อง",
+      code: z.ZodIssueCode.custom,
+    });
+  }
+  
+  if (data.email && !z.string().email({ message: "กรุณากรอกอีเมลให้ถูกต้อง" }).safeParse(data.email).success) {
+    ctx.addIssue({
+      path: ["email"],
+      message: "กรุณากรอกอีเมลให้ถูกต้อง",
+      code: z.ZodIssueCode.custom,
+    });
+  }
 });
 
 
@@ -51,6 +84,7 @@ export function RegistrationForm() {
     defaultValues: {
       firstName: "",
       lastName: "",
+      nickname: "",
       phone: "",
       email: "",
       lineId: "",
@@ -60,9 +94,19 @@ export function RegistrationForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
     try {
-      const fullName = `${values.firstName} ${values.lastName}`;
+      const nameParts = [values.firstName, values.lastName].filter(p => p && p.trim()).map(p => p!.trim());
+      let displayName = nameParts.join(" ");
+
+      if (values.nickname && values.nickname.trim()) {
+        const trimmedNickname = values.nickname.trim();
+        displayName = displayName ? `${displayName} (${trimmedNickname})` : trimmedNickname;
+      }
+
       const newId = await addParticipant({
-        name: fullName,
+        name: displayName,
+        firstName: values.firstName,
+        lastName: values.lastName,
+        nickname: values.nickname,
         gender: values.gender,
         ageRange: values.ageRange,
         phone: values.phone,
@@ -70,11 +114,11 @@ export function RegistrationForm() {
         lineId: values.lineId,
       });
       
-      setSubmissionResult({ id: newId, name: values.firstName });
+      setSubmissionResult({ id: newId, name: displayName });
       
       toast({
         title: "ลงทะเบียนสำเร็จ!",
-        description: `ผู้เล่นใหม่ '${fullName}' ถูกเพิ่มในระบบแล้ว`,
+        description: `ผู้เล่นใหม่ '${displayName}' ถูกเพิ่มในระบบแล้ว`,
       });
       
       form.reset();
@@ -99,18 +143,18 @@ export function RegistrationForm() {
                 </div>
                 <CardTitle className="font-headline text-3xl text-primary">ลงทะเบียนสำเร็จ!</CardTitle>
                 <CardDescription className="text-base pt-2">
-                    ยินดีต้อนรับคุณ <span className="font-semibold text-foreground">{submissionResult.name}</span>!
+                    ยินดีต้อนรับ!
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-                <div className="bg-secondary/80 rounded-lg p-4">
-                    <p className="text-sm text-muted-foreground">รหัสผู้เล่นของคุณคือ:</p>
+                 <div className="bg-secondary/80 rounded-lg p-4">
+                    <p className="text-sm text-muted-foreground">ชื่อผู้เล่น:</p>
+                    <p className="text-xl font-semibold text-foreground py-1">{submissionResult.name}</p>
+                    <p className="text-sm text-muted-foreground mt-2">รหัสผู้เล่นของคุณคือ:</p>
                     <p className="text-4xl font-bold font-mono tracking-widest text-accent py-2">{submissionResult.id}</p>
                     <p className="text-xs text-muted-foreground">กรุณาแจ้งรหัสนี้แก่เจ้าหน้าที่ในแต่ละฐาน</p>
                 </div>
-                <p className="text-sm text-muted-foreground">
-                    ชื่อของคุณจะปรากฏบน Scoreboard ในหน้าจอหลัก
-                </p>
+                
                  <Button onClick={handleRegisterAnother} size="lg" className="w-full">
                     <CheckCircle2 className="mr-2 h-5 w-5" />
                     ลงทะเบียนคนถัดไป
@@ -158,6 +202,20 @@ export function RegistrationForm() {
                 )}
               />
             </div>
+            
+            <FormField
+                control={form.control}
+                name="nickname"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>ชื่อเล่น</FormLabel>
+                    <FormControl>
+                      <Input placeholder="โปรดกรอกชื่อเล่นของคุณ" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
             <FormField
               control={form.control}

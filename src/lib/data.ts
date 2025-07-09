@@ -22,11 +22,14 @@ export type Scores = { [key in StationKey]?: number };
 
 export interface Participant {
   id: string; // P001, P002, etc.
-  name: string;
+  name: string; // Computed display name
+  firstName?: string;
+  lastName?: string;
+  nickname?: string;
   gender: 'male' | 'female';
   ageRange: string;
-  phone: string;
-  email: string;
+  phone?: string;
+  email?: string;
   lineId?: string;
   scores: Scores;
   createdAt: number; // For ordering
