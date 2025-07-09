@@ -22,6 +22,12 @@ const nextConfig: NextConfig = {
         port: '', // ถ้าไม่มี port เฉพาะเจาะจงก็เว้นว่างไว้
         pathname: '/**', // หรือระบุ path ที่แม่นยำกว่า เช่น '/images/**' ถ้าต้องการ
       },
+      {
+        protocol: 'https',
+        hostname: 'drive.google.com',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };
