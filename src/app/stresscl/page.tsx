@@ -28,7 +28,7 @@ const StressDisplay = ({ participant }: { participant: Participant | null }) => 
     
     return (
         <div className="w-full h-full flex flex-col items-center justify-center text-slate-800">
-            <div className="flex flex-col md:flex-row items-center justify-center gap-20 lg:gap-24">
+            <div className="flex flex-col md:flex-row items-center justify-center gap-30 lg:gap-36">
                 <div className="flex flex-col items-center">
                     <h2 className="text-3xl font-bold tracking-widest mb-8 text-center">OVERALL STRESS</h2>
                     {/* Big Circle for Overall */}
@@ -122,7 +122,7 @@ export default function StressPage() {
                 <Image src="https://www.genfosis.com/images/Genfosis_Logo_PNG.webp" alt="Genfosis Logo" width={150} height={32} />
             </header>
             
-            <main className="relative z-4 grid grid-cols-1 md:grid-cols-5 min-h-screen">
+            <main className="relative z-4 grid grid-cols-1 md:grid-cols-6 min-h-screen">
                 <aside className="col-span-2 p-4 md:p-14 flex flex-col justify-center">
                     <Card className="bg-white/60 border-gray-200/50 backdrop-blur-md shadow-lg">
                         <CardHeader>
