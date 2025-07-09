@@ -4,10 +4,9 @@
 import { useParticipants, type Participant } from '@/lib/data';
 import { Loader2, FilePenLine } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
-import { useMemo } from 'react';
+import { useMemo, Suspense } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -66,7 +65,7 @@ const StressDisplay = ({ participant }: { participant: Participant | null }) => 
     );
 }
 
-export default function StressPage() {
+function StressPageContent() {
     const { participants, loading } = useParticipants();
     const searchParams = useSearchParams();
     const selectedId = searchParams.get('id');
@@ -167,5 +166,17 @@ export default function StressPage() {
                 </Button>
             </div>
         </div>
+    );
+}
+
+export default function StressPage() {
+    return (
+        <Suspense fallback={
+            <div className="flex h-screen w-full items-center justify-center bg-white">
+                <Loader2 className="h-12 w-12 animate-spin text-gray-500" />
+            </div>
+        }>
+            <StressPageContent />
+        </Suspense>
     );
 }
