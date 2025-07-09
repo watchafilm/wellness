@@ -1,6 +1,7 @@
 
 "use client";
 
+import { useState } from 'react';
 import type { Participant } from '@/lib/data';
 import { useParticipants } from '@/lib/data';
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +16,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Loader2 } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 
 // Import all calculation functions and level definitions
@@ -88,6 +90,7 @@ const levelToVariant: Record<string, BadgeVariant> = {
 
 export default function AdminDashboardPage() {
   const { participants, loading } = useParticipants();
+  const [genderFilter, setGenderFilter] = useState<'all' | 'male' | 'female'>('all');
 
   if (loading) {
     return (
@@ -96,8 +99,13 @@ export default function AdminDashboardPage() {
       </div>
     );
   }
+  
+  const filteredParticipants = participants.filter(p => {
+    if (genderFilter === 'all') return true;
+    return p.gender === genderFilter;
+  });
 
-  const rankedParticipants = [...participants].map(p => {
+  const rankedParticipants = [...filteredParticipants].map(p => {
     const stationResults = Object.keys(stations).reduce((acc, key) => {
         acc[key as StationKey] = getPointsAndLevelForStation(key as StationKey, p);
         return acc;
@@ -116,10 +124,26 @@ export default function AdminDashboardPage() {
     <TooltipProvider>
       <Card className="shadow-2xl border-none bg-card/90 backdrop-blur-sm">
         <CardHeader className="p-6">
-          <CardTitle className="font-headline text-3xl text-primary">Scoreboard</CardTitle>
-          <CardDescription className="text-base text-muted-foreground">
-          ตารางคะแนนรวมของผู้เข้าร่วมกิจกรรมทั้งหมด (คำนวณจาก Point ที่ได้ในแต่ละฐาน)
-          </CardDescription>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                  <CardTitle className="font-headline text-3xl text-primary">Scoreboard</CardTitle>
+                  <CardDescription className="text-base text-muted-foreground mt-1">
+                  ตารางคะแนนรวมของผู้เข้าร่วมกิจกรรมทั้งหมด (คำนวณจาก Point ที่ได้ในแต่ละฐาน)
+                  </CardDescription>
+              </div>
+              <div className="w-full sm:w-auto">
+                  <Select value={genderFilter} onValueChange={(value) => setGenderFilter(value as 'all' | 'male' | 'female')}>
+                      <SelectTrigger className="w-full sm:w-[200px]">
+                          <SelectValue placeholder="กรองตามเพศ" />
+                      </SelectTrigger>
+                      <SelectContent>
+                          <SelectItem value="all">แสดงทั้งหมด</SelectItem>
+                          <SelectItem value="male">เฉพาะผู้ชาย</SelectItem>
+                          <SelectItem value="female">เฉพาะผู้หญิง</SelectItem>
+                      </SelectContent>
+                  </Select>
+              </div>
+          </div>
         </CardHeader>
         <CardContent className="overflow-x-auto p-6 pt-0">
           <Table className="w-[90%] mx-auto">
