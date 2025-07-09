@@ -28,7 +28,7 @@ const StressDisplay = ({ participant }: { participant: Participant | null }) => 
     
     return (
         <div className="w-full h-full flex flex-col items-center justify-center text-slate-800">
-            <div className="flex flex-col md:flex-row items-center justify-center gap-12 lg:gap-16">
+            <div className="flex flex-col md:flex-row items-center justify-center gap-20 lg:gap-24">
                 <div className="flex flex-col items-center">
                     <h2 className="text-3xl font-bold tracking-widest mb-8 text-center">OVERALL STRESS</h2>
                     {/* Big Circle for Overall */}
