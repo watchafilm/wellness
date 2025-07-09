@@ -17,12 +17,11 @@ export const pointLevels: { [key: number]: string } = {
     1: 'Very High Risk',
 };
 
-// Data for table axes
-export const femaleWaistValues = Array.from({ length: 17 }, (_, i) => 28 + i); // 28 to 44
-export const femaleHeightValues = Array.from({ length: 17 }, (_, i) => 56 + i); // 56 to 72
-export const maleWaistValues = Array.from({ length: 17 }, (_, i) => 30 + i); // 30 to 46
-export const maleHeightValues = Array.from({ length: 17 }, (_, i) => 62 + i); // 62 to 78
-
+// Data for table axes, converted to cm
+export const femaleWaistValues = [71, 74, 76, 79, 81, 84, 86, 89, 91, 94, 97, 99, 102, 104, 107, 109, 112];
+export const femaleHeightValues = [142, 145, 147, 150, 152, 155, 157, 160, 163, 165, 168, 170, 173, 175, 178, 180, 183];
+export const maleWaistValues = [76, 79, 81, 84, 86, 89, 91, 94, 97, 99, 102, 104, 107, 109, 112, 114, 117];
+export const maleHeightValues = [157, 160, 163, 165, 168, 170, 173, 175, 178, 180, 183, 185, 188, 191, 193, 196, 198];
 
 type PointThreshold = { toHeight: number; points: number };
 type GenderPointData = { [waist: number]: PointThreshold[] };
@@ -32,45 +31,46 @@ type GenderPointData = { [waist: number]: PointThreshold[] };
  * For a given gender and waist, it provides an array of height thresholds.
  * If a person's height is less than or equal to the `toHeight` value, they get the corresponding `points`.
  * The array is ordered, so the first match determines the score.
+ * All values converted from inches to cm (1 in = 2.54 cm), and rounded.
  */
 export const whRatioPointData: { male: GenderPointData; female: GenderPointData } = {
     female: {
-        28: [{ toHeight: 72, points: 5 }],
-        29: [{ toHeight: 56, points: 4 }, { toHeight: 72, points: 5 }],
-        30: [{ toHeight: 58, points: 4 }, { toHeight: 72, points: 5 }],
-        31: [{ toHeight: 60, points: 4 }, { toHeight: 72, points: 5 }],
-        32: [{ toHeight: 61, points: 3 }, { toHeight: 65, points: 4 }, { toHeight: 72, points: 5 }],
-        33: [{ toHeight: 62, points: 3 }, { toHeight: 66, points: 4 }, { toHeight: 72, points: 5 }],
-        34: [{ toHeight: 63, points: 3 }, { toHeight: 68, points: 4 }, { toHeight: 72, points: 5 }],
-        35: [{ toHeight: 65, points: 3 }, { toHeight: 69, points: 4 }, { toHeight: 72, points: 5 }],
-        36: [{ toHeight: 59, points: 2 }, { toHeight: 66, points: 3 }, { toHeight: 71, points: 4 }, { toHeight: 72, points: 5 }],
-        37: [{ toHeight: 61, points: 2 }, { toHeight: 67, points: 3 }, { toHeight: 72, points: 4 }],
-        38: [{ toHeight: 62, points: 2 }, { toHeight: 69, points: 3 }, { toHeight: 72, points: 4 }],
-        39: [{ toHeight: 64, points: 2 }, { toHeight: 70, points: 3 }, { toHeight: 72, points: 4 }],
-        40: [{ toHeight: 66, points: 2 }, { toHeight: 72, points: 3 }],
-        41: [{ toHeight: 60, points: 1 }, { toHeight: 67, points: 2 }, { toHeight: 72, points: 3 }],
-        42: [{ toHeight: 62, points: 1 }, { toHeight: 69, points: 2 }, { toHeight: 72, points: 3 }],
-        43: [{ toHeight: 64, points: 1 }, { toHeight: 71, points: 2 }, { toHeight: 72, points: 3 }],
-        44: [{ toHeight: 66, points: 1 }, { toHeight: 72, points: 2 }],
+        71: [{ toHeight: 183, points: 5 }],
+        74: [{ toHeight: 142, points: 4 }, { toHeight: 183, points: 5 }],
+        76: [{ toHeight: 147, points: 4 }, { toHeight: 183, points: 5 }],
+        79: [{ toHeight: 152, points: 4 }, { toHeight: 183, points: 5 }],
+        81: [{ toHeight: 155, points: 3 }, { toHeight: 165, points: 4 }, { toHeight: 183, points: 5 }],
+        84: [{ toHeight: 157, points: 3 }, { toHeight: 168, points: 4 }, { toHeight: 183, points: 5 }],
+        86: [{ toHeight: 160, points: 3 }, { toHeight: 173, points: 4 }, { toHeight: 183, points: 5 }],
+        89: [{ toHeight: 165, points: 3 }, { toHeight: 175, points: 4 }, { toHeight: 183, points: 5 }],
+        91: [{ toHeight: 150, points: 2 }, { toHeight: 168, points: 3 }, { toHeight: 180, points: 4 }, { toHeight: 183, points: 5 }],
+        94: [{ toHeight: 155, points: 2 }, { toHeight: 170, points: 3 }, { toHeight: 183, points: 4 }],
+        97: [{ toHeight: 157, points: 2 }, { toHeight: 175, points: 3 }, { toHeight: 183, points: 4 }],
+        99: [{ toHeight: 163, points: 2 }, { toHeight: 178, points: 3 }, { toHeight: 183, points: 4 }],
+        102: [{ toHeight: 168, points: 2 }, { toHeight: 183, points: 3 }],
+        104: [{ toHeight: 152, points: 1 }, { toHeight: 170, points: 2 }, { toHeight: 183, points: 3 }],
+        107: [{ toHeight: 157, points: 1 }, { toHeight: 175, points: 2 }, { toHeight: 183, points: 3 }],
+        109: [{ toHeight: 163, points: 1 }, { toHeight: 180, points: 2 }, { toHeight: 183, points: 3 }],
+        112: [{ toHeight: 168, points: 1 }, { toHeight: 183, points: 2 }],
     },
     male: {
-        30: [{ toHeight: 78, points: 5 }],
-        31: [{ toHeight: 78, points: 5 }],
-        32: [{ toHeight: 62, points: 4 }, { toHeight: 78, points: 5 }],
-        33: [{ toHeight: 64, points: 4 }, { toHeight: 78, points: 5 }],
-        34: [{ toHeight: 66, points: 4 }, { toHeight: 78, points: 5 }],
-        35: [{ toHeight: 68, points: 4 }, { toHeight: 78, points: 5 }],
-        36: [{ toHeight: 65, points: 3 }, { toHeight: 70, points: 4 }, { toHeight: 78, points: 5 }],
-        37: [{ toHeight: 67, points: 3 }, { toHeight: 72, points: 4 }, { toHeight: 78, points: 5 }],
-        38: [{ toHeight: 68, points: 3 }, { toHeight: 74, points: 4 }, { toHeight: 78, points: 5 }],
-        39: [{ toHeight: 70, points: 3 }, { toHeight: 76, points: 4 }, { toHeight: 78, points: 5 }],
-        40: [{ toHeight: 72, points: 3 }, { toHeight: 78, points: 4 }],
-        41: [{ toHeight: 66, points: 2 }, { toHeight: 74, points: 3 }, { toHeight: 78, points: 4 }],
-        42: [{ toHeight: 68, points: 2 }, { toHeight: 76, points: 3 }, { toHeight: 78, points: 4 }],
-        43: [{ toHeight: 70, points: 2 }, { toHeight: 78, points: 3 }],
-        44: [{ toHeight: 71, points: 2 }, { toHeight: 78, points: 3 }],
-        45: [{ toHeight: 66, points: 1 }, { toHeight: 73, points: 2 }, { toHeight: 78, points: 3 }],
-        46: [{ toHeight: 68, points: 1 }, { toHeight: 75, points: 2 }, { toHeight: 78, points: 3 }],
+        76: [{ toHeight: 198, points: 5 }],
+        79: [{ toHeight: 198, points: 5 }],
+        81: [{ toHeight: 157, points: 4 }, { toHeight: 198, points: 5 }],
+        84: [{ toHeight: 163, points: 4 }, { toHeight: 198, points: 5 }],
+        86: [{ toHeight: 168, points: 4 }, { toHeight: 198, points: 5 }],
+        89: [{ toHeight: 173, points: 4 }, { toHeight: 198, points: 5 }],
+        91: [{ toHeight: 165, points: 3 }, { toHeight: 178, points: 4 }, { toHeight: 198, points: 5 }],
+        94: [{ toHeight: 170, points: 3 }, { toHeight: 183, points: 4 }, { toHeight: 198, points: 5 }],
+        97: [{ toHeight: 173, points: 3 }, { toHeight: 188, points: 4 }, { toHeight: 198, points: 5 }],
+        99: [{ toHeight: 178, points: 3 }, { toHeight: 193, points: 4 }, { toHeight: 198, points: 5 }],
+        102: [{ toHeight: 183, points: 3 }, { toHeight: 198, points: 4 }],
+        104: [{ toHeight: 168, points: 2 }, { toHeight: 188, points: 3 }, { toHeight: 198, points: 4 }],
+        107: [{ toHeight: 173, points: 2 }, { toHeight: 193, points: 3 }, { toHeight: 198, points: 4 }],
+        109: [{ toHeight: 178, points: 2 }, { toHeight: 198, points: 3 }],
+        112: [{ toHeight: 180, points: 2 }, { toHeight: 198, points: 3 }],
+        114: [{ toHeight: 168, points: 1 }, { toHeight: 185, points: 2 }, { toHeight: 198, points: 3 }],
+        117: [{ toHeight: 173, points: 1 }, { toHeight: 191, points: 2 }, { toHeight: 198, points: 3 }],
     }
 };
 

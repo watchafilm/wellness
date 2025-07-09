@@ -48,7 +48,7 @@ function BenchmarkTable({ gender, highlightInfo }: {
             <Table className="min-w-full border-collapse">
                 <TableHeader>
                     <TableRow className="bg-muted/50 hover:bg-muted/50">
-                        <TableHead className="sticky left-0 bg-muted/50 z-20 w-24 min-w-24 text-center font-bold px-2 py-3 border-r">Waist (in)</TableHead>
+                        <TableHead className="sticky left-0 bg-muted/50 z-20 w-24 min-w-24 text-center font-bold px-2 py-3 border-r">Waist (cm)</TableHead>
                         {heightValues.map(h => (
                             <TableHead key={h} className="text-center font-semibold p-2 w-16 min-w-16">
                                 {h}
@@ -176,14 +176,14 @@ export default function WhRatioStationPage() {
                             </div>
                         </div>
                          <div className="w-28">
-                             <label htmlFor="waist" className="text-sm font-medium text-muted-foreground">Waist (in)</label>
+                             <label htmlFor="waist" className="text-sm font-medium text-muted-foreground">Waist (cm)</label>
                             <Input 
                                 id="waist" 
                                 name="waist" 
                                 type="number" 
                                 step="1" 
                                 min="0" 
-                                placeholder="e.g. 34" 
+                                placeholder="e.g. 85" 
                                 required 
                                 className="h-9 mt-1"
                                 value={waist}
@@ -191,14 +191,14 @@ export default function WhRatioStationPage() {
                             />
                         </div>
                         <div className="w-28">
-                             <label htmlFor="height" className="text-sm font-medium text-muted-foreground">Height (in)</label>
+                             <label htmlFor="height" className="text-sm font-medium text-muted-foreground">Height (cm)</label>
                             <Input 
                                 id="height" 
                                 name="height" 
                                 type="number" 
                                 step="1" 
                                 min="0" 
-                                placeholder="e.g. 68" 
+                                placeholder="e.g. 170" 
                                 required 
                                 className="h-9 mt-1"
                                 value={height}
